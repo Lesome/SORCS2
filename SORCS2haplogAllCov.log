@@ -14,7 +14,7 @@ Recent cached web-check found... OK, v1.07 is current
 +++ PLINK 1.9 is now available! See above website for details +++ 
 
 Writing this text to log file [ SORCS2haplogAllCov.log ]
-Analysis started: Fri Oct 30 13:19:31 2015
+Analysis started: Fri Oct 30 13:27:27 2015
 
 Options in effect:
 	--lfile SORCS2
@@ -53,5 +53,5 @@ Requiring per individual per haplotype missingness < 0.5
 Writing haplotype results to [ SORCS2haplogAllCov.assoc.hap.logistic ]
 Converting data to Individual-major format
 
-Analysis finished: Fri Oct 30 13:19:32 2015
+Analysis finished: Fri Oct 30 13:27:28 2015
 
