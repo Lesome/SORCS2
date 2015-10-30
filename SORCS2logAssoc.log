@@ -1,0 +1,43 @@
+
+@----------------------------------------------------------@
+|        PLINK!       |     v1.07      |   10/Aug/2009     |
+|----------------------------------------------------------|
+|  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
+|----------------------------------------------------------|
+|  For documentation, citation & bug-report instructions:  |
+|        http://pngu.mgh.harvard.edu/purcell/plink/        |
+@----------------------------------------------------------@
+
+Web-based version check ( --noweb to skip )
+Recent cached web-check found... OK, v1.07 is current
+
++++ PLINK 1.9 is now available! See above website for details +++ 
+
+Writing this text to log file [ SORCS2logAssoc.log ]
+Analysis started: Fri Oct 30 13:19:30 2015
+
+Options in effect:
+	--lfile SORCS2
+	--assoc
+	--out SORCS2logAssoc
+
+4 (of 4) markers to be included from [ SORCS2.map ]
+Reading pedigree information from [ SORCS2.fam ] 
+7727 individuals read from [ SORCS2.fam ] 
+7727 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+3567 cases, 4160 controls and 0 missing
+3193 males, 4534 females, and 0 of unspecified sex
+Before frequency and genotyping pruning, there are 4 SNPs
+7727 founders and 0 non-founders found
+Total genotyping rate in remaining individuals is 0.95891
+0 SNPs failed missingness test ( GENO > 1 )
+0 SNPs failed frequency test ( MAF < 0 )
+After frequency and genotyping pruning, there are 4 SNPs
+After filtering, 3567 cases, 4160 controls and 0 missing
+After filtering, 3193 males, 4534 females, and 0 of unspecified sex
+Writing main association results to [ SORCS2logAssoc.assoc ] 
+
+Analysis finished: Fri Oct 30 13:19:30 2015
+
