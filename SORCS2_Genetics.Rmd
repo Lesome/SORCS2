@@ -43,9 +43,14 @@ Our goal, which we may or may not achieve, will be to complete a "publication re
 ###Responsibility for Specific Analysis Steps:
 1. Provide existing SORCS2 dataset(s) and initate analyses calling PLINK from R
     + Steve has done this with Joseph's help
-2. Download ADSP SORCS2 dataset
-    + Joseph will do this as the data become available (3000 samples should soon be ready)
-3. Create Figure 1 showing a SORCS2 gene diagram with information on SNP location etc.
+2. Short-term goals for Steve's R script
+    + Read in Joseph's current ADSP dataset and generate PLINK files
+    + Read in and display PLINK files that are being generated
+    + Generate function(s) creating PLINK files from input dataset(s)
+    + Figure our how best to display manuscript text and write the introduction.
+3. Download ADSP SORCS2 dataset
+    + Joseph has downloaded dataset for 1000 sampleswill do this as the data become available (3000 samples should soon be ready)
+4. Create Figure 1 showing a SORCS2 gene diagram with information on SNP location etc.
     + Ben and Leonie are working on this. 
        
 ###Steve's Content
@@ -141,18 +146,20 @@ print(y)
         #Create PLINK fam file
 fam <- select(SORCS2,FID,IID,PID,MID,SEX,AFF)
 fam <- distinct(fam)
-str(fam)
+str(fam); head(fam); tail(fam)
 write.table(fam,"SORCS2.fam",sep='\t',quote=FALSE,row.names=F,col.names=F)
 SORCS2fam=read.table("SORCS2.fam", header = F)
-str(SORCS2fam)
+str(SORCS2fam);head(SORCS2fam);tail(SORCS2fam)
 
-        #Create PLINK cov file
+        #Create PLINK cov file; 
+        #Not sure why, but errors sometimes occurred in r when using "SORCS2.cov"" as output using write.table
+        #So I used "SORCS2cov.txt" thereby avoiding this problem
 cov <- select(SORCS2,FID,IID,JS,RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose)
 cov <- distinct(cov)
 str(cov)
 write.table(cov,"SORCS2cov.txt",sep='\t',quote=FALSE,row.names=F,col.names=T)
 SORCS2cov=read.table("SORCS2cov.txt", header = T)
-str(SORCS2cov)
+str(SORCS2cov);head(SORCS2cov); tail(SORCS2cov)
 
         #Create PLINK lgen file
 lgen <- select(SORCS2,FID,IID,rs,A1,A2)
@@ -161,14 +168,21 @@ write.table(lgen,"SORCS2.lgen",sep='\t',quote=FALSE,row.names=F,col.names=F)
 SORCS2lgen=read.table("SORCS2.lgen", header = F)
 str(SORCS2lgen)
 
-        #Begin analysis of the SORCS2 data in PLINK
-system("plink --lfile SORCS2 --assoc --out SORCS2logAssoc")
+        #PLINK --assoc: analyzes standard case/control (allelic) association with LOAD, no covariates
+system("plink --lfile SORCS2 --assoc --counts --out SORCS2assoc")
+SORCS2assoc <- read.table("SORCS2assoc.assoc", header = T)
+str(SORCS2assoc);head(SORCS2assoc);tail(SORCS2assoc)
+
+        #PLINK --assoc: analyzes association by logistic regression using an additive model with with covariates
 system("plink --lfile SORCS2 --logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose --out SORCS2logAllCov")
+
 system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --out SORCS2haplogAllCov")
 system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --hap-omnibus --out SORCS2haplogAllCovOmni")
 system("plink --lfile SORCS2 --logistic --ci 0.95 --covar SORCS2cov.txt --covar-name APOE4dose,APOE2dose --out SORCS2logAPOECov")
+list.files()
 ```
-Additional change
+
+The data we have on the 4 common SORCS2 missense variants in our ADSP dataset was captured by Joseph Reddy and placed in using the following query:
 
 ###Ben and Leonie's Content
 First draft of gene diagram - exact positions and lengths of exons to be added.
