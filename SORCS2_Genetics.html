@@ -143,6 +143,8 @@ img {
 </div>
 <div id="steves-content" class="section level3">
 <h3>Steve’s Content</h3>
+<div id="read-in-and-analyze-ydb-sorcs2-dataset" class="section level4">
+<h4>Read in and Analyze Ydb SORCS2 dataset</h4>
 <p>The data we have on the 4 common SORCS2 missense variants in the Younkin database (YdB) was captured using the following query:</p>
 <p>SELECT TOP (100) PERCENT Younkin.dbo.Subject.SubKey, Younkin.dbo.Subject.SubjectIDType, Younkin.dbo.Subject.SubjectIDValue, Younkin.dbo.Subject.Series, Younkin.dbo.Subject.Dx, Younkin.dbo.Subject.ApoE, Younkin.dbo.Subject.DxAge, Younkin.dbo.Subject.Gend, Younkin.dbo.Variant.VariantID, Younkin.dbo.Variant.VariantName, Younkin.dbo.VariantDataAll.Call, Younkin.dbo.VariantDataAll.BestCall, Younkin.dbo.Variant_New.chr, Younkin.dbo.Variant_New.position, Younkin.dbo.Variant_New.rs FROM Younkin.dbo.VariantDataAll INNER JOIN Younkin.dbo.Variant ON Younkin.dbo.VariantDataAll.VariantID = Younkin.dbo.Variant.VariantID INNER JOIN Younkin.dbo.Subject ON Younkin.dbo.VariantDataAll.SKey = Younkin.dbo.Subject.SubKey INNER JOIN Younkin.dbo.Variant_New ON Younkin.dbo.VariantDataAll.VariantID = Younkin.dbo.Variant_New.VariantID WHERE (Younkin.dbo.Variant.VariantID = 2069 OR Younkin.dbo.Variant.VariantID = 2070 OR Younkin.dbo.Variant.VariantID = 2072 OR Younkin.dbo.Variant.VariantID = 2073) ORDER BY Younkin.dbo.Variant.VariantID</p>
 <p>The results of this query were copied into SORCS2_Ydb.csv</p>
@@ -417,23 +419,75 @@ list.files()</code></pre>
 <pre><code>##  [1] &quot;SORCS2.fam&quot;                               
 ##  [2] &quot;SORCS2.lgen&quot;                              
 ##  [3] &quot;SORCS2.map&quot;                               
-##  [4] &quot;SORCS2_Genetics.html&quot;                     
-##  [5] &quot;SORCS2_Genetics.Rmd&quot;                      
-##  [6] &quot;SORCS2_Ydb.csv&quot;                           
-##  [7] &quot;SORCS2assoc.assoc&quot;                        
-##  [8] &quot;SORCS2assoc.log&quot;                          
-##  [9] &quot;SORCS2cov.txt&quot;                            
-## [10] &quot;SORCS2haplogAllCov.assoc.hap.logistic&quot;    
-## [11] &quot;SORCS2haplogAllCov.log&quot;                   
-## [12] &quot;SORCS2haplogAllCovOmni.assoc.hap.logistic&quot;
-## [13] &quot;SORCS2haplogAllCovOmni.log&quot;               
-## [14] &quot;SORCS2logAllCov.assoc.logistic&quot;           
-## [15] &quot;SORCS2logAllCov.log&quot;                      
-## [16] &quot;SORCS2logAPOECov.assoc.logistic&quot;          
-## [17] &quot;SORCS2logAPOECov.log&quot;                     
-## [18] &quot;SORCS2logAssoc.assoc&quot;                     
-## [19] &quot;SORCS2logAssoc.log&quot;</code></pre>
-<p>The data we have on the 4 common SORCS2 missense variants in our ADSP dataset was captured by Joseph Reddy and placed in using the following query:</p>
+##  [4] &quot;SORCS2_flat_file.txt&quot;                     
+##  [5] &quot;SORCS2_Genetics.html&quot;                     
+##  [6] &quot;SORCS2_Genetics.Rmd&quot;                      
+##  [7] &quot;SORCS2_Ydb.csv&quot;                           
+##  [8] &quot;SORCS2assoc.assoc&quot;                        
+##  [9] &quot;SORCS2assoc.log&quot;                          
+## [10] &quot;SORCS2cov.txt&quot;                            
+## [11] &quot;SORCS2haplogAllCov.assoc.hap.logistic&quot;    
+## [12] &quot;SORCS2haplogAllCov.log&quot;                   
+## [13] &quot;SORCS2haplogAllCovOmni.assoc.hap.logistic&quot;
+## [14] &quot;SORCS2haplogAllCovOmni.log&quot;               
+## [15] &quot;SORCS2logAllCov.assoc.logistic&quot;           
+## [16] &quot;SORCS2logAllCov.log&quot;                      
+## [17] &quot;SORCS2logAPOECov.assoc.logistic&quot;          
+## [18] &quot;SORCS2logAPOECov.log&quot;                     
+## [19] &quot;SORCS2logAssoc.assoc&quot;                     
+## [20] &quot;SORCS2logAssoc.log&quot;</code></pre>
+</div>
+<div id="read-in-and-analyze-adsp-sorcs2-dataset" class="section level4">
+<h4>Read in and Analyze ADSP SORCS2 dataset</h4>
+<p>The data we have on the 4 common SORCS2 missense variants in our ADSP dataset was captured by Joseph Reddy. I placed this dataset (SORCS2_flat_file.txt) in my local SORSC2 repo.The following block reads the data in, creates PLINK, files and then analyzes them in PLINK as for the SORCS2 dataset from the Younkin database.</p>
+<pre class="r"><code>SORCS2_ADSP &lt;- read.table(&quot;SORCS2_flat_file.txt&quot;, header = T)
+str(SORCS2_ADSP);head(SORCS2_ADSP);tail(SORCS2_ADSP)</code></pre>
+<pre><code>## 'data.frame':    25000 obs. of  16 variables:
+##  $ Subject_ID  : Factor w/ 1000 levels &quot;SRR1198015&quot;,&quot;SRR1198016&quot;,..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ Series      : Factor w/ 1 level &quot;ADSP&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ Sex         : int  0 0 1 0 0 0 1 1 1 1 ...
+##  $ Age         : num  64 71 85 87.3 82.2 ...
+##  $ Case.control: int  2 2 1 1 1 1 1 1 0 0 ...
+##  $ APOE        : int  34 34 23 33 33 33 34 33 33 33 ...
+##  $ Gene        : Factor w/ 1 level &quot;SORCS2&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ SNP_ID      : Factor w/ 19 levels &quot;.&quot;,&quot;rs144615557&quot;,..: 17 17 17 17 17 17 17 17 17 17 ...
+##  $ CHR         : Factor w/ 1 level &quot;chr4&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ Position    : int  7640109 7640109 7640109 7640109 7640109 7640109 7640109 7640109 7640109 7640109 ...
+##  $ Ref         : Factor w/ 4 levels &quot;A&quot;,&quot;C&quot;,&quot;G&quot;,&quot;T&quot;: 3 3 3 3 3 3 3 3 3 3 ...
+##  $ Alt         : Factor w/ 4 levels &quot;A&quot;,&quot;C&quot;,&quot;G&quot;,&quot;T&quot;: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ Codon       : Factor w/ 17 levels &quot;aAg/aGg&quot;,&quot;aCc/aAc&quot;,..: 13 13 13 13 13 13 13 13 13 13 ...
+##  $ AA          : Factor w/ 25 levels &quot;A1039P&quot;,&quot;A1040P&quot;,..: 3 3 3 3 3 3 3 3 3 3 ...
+##  $ Call        : int  11 11 11 11 11 11 11 11 11 11 ...
+##  $ Genotype    : Factor w/ 4 levels &quot;./.&quot;,&quot;0/0&quot;,&quot;0/1&quot;,..: 2 2 2 2 2 2 2 2 2 2 ...</code></pre>
+<pre><code>##   Subject_ID Series Sex      Age Case.control APOE   Gene      SNP_ID  CHR
+## 1 SRR1198015   ADSP   0 64.00000            2   34 SORCS2 rs527549780 chr4
+## 2 SRR1198016   ADSP   0 71.00000            2   34 SORCS2 rs527549780 chr4
+## 3 SRR1267825   ADSP   1 84.98015            1   23 SORCS2 rs527549780 chr4
+## 4 SRR1267826   ADSP   0 87.29911            1   33 SORCS2 rs527549780 chr4
+## 5 SRR1267827   ADSP   0 82.17659            1   33 SORCS2 rs527549780 chr4
+## 6 SRR1267828   ADSP   0 90.81999            1   33 SORCS2 rs527549780 chr4
+##   Position Ref Alt   Codon    AA Call Genotype
+## 1  7640109   G   A Gca/Aca A235T   11      0/0
+## 2  7640109   G   A Gca/Aca A235T   11      0/0
+## 3  7640109   G   A Gca/Aca A235T   11      0/0
+## 4  7640109   G   A Gca/Aca A235T   11      0/0
+## 5  7640109   G   A Gca/Aca A235T   11      0/0
+## 6  7640109   G   A Gca/Aca A235T   11      0/0</code></pre>
+<pre><code>##       Subject_ID Series Sex Age Case.control APOE   Gene      SNP_ID  CHR
+## 24995 SRR1578802   ADSP   1  80            1   33 SORCS2 rs199714956 chr4
+## 24996 SRR1578822   ADSP   0  84            0   33 SORCS2 rs199714956 chr4
+## 24997 SRR1578829   ADSP   1  70            1   34 SORCS2 rs199714956 chr4
+## 24998 SRR1578839   ADSP   0  65            1   33 SORCS2 rs199714956 chr4
+## 24999 SRR1578847   ADSP   1  65            1   33 SORCS2 rs199714956 chr4
+## 25000 SRR1578852   ADSP   1  63            1   34 SORCS2 rs199714956 chr4
+##       Position Ref Alt   Codon     AA Call Genotype
+## 24995  7735116   G   A cGg/cAg R1059Q   11      0/0
+## 24996  7735116   G   A cGg/cAg R1059Q   11      0/0
+## 24997  7735116   G   A cGg/cAg R1059Q   11      0/0
+## 24998  7735116   G   A cGg/cAg R1059Q   11      0/0
+## 24999  7735116   G   A cGg/cAg R1059Q   11      0/0
+## 25000  7735116   G   A cGg/cAg R1059Q   11      0/0</code></pre>
+</div>
 </div>
 <div id="ben-and-leonies-content" class="section level3">
 <h3>Ben and Leonie’s Content</h3>

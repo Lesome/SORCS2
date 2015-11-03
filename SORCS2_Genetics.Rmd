@@ -54,6 +54,8 @@ Our goal, which we may or may not achieve, will be to complete a "publication re
     + Ben and Leonie are working on this. 
        
 ###Steve's Content
+
+####Read in and Analyze Ydb SORCS2 dataset
 The data we have on the 4 common SORCS2 missense variants in the Younkin database (YdB) was captured using the following query:
 
 SELECT        TOP (100) PERCENT Younkin.dbo.Subject.SubKey, Younkin.dbo.Subject.SubjectIDType, Younkin.dbo.Subject.SubjectIDValue, Younkin.dbo.Subject.Series, 
@@ -182,7 +184,17 @@ system("plink --lfile SORCS2 --logistic --ci 0.95 --covar SORCS2cov.txt --covar-
 list.files()
 ```
 
-The data we have on the 4 common SORCS2 missense variants in our ADSP dataset was captured by Joseph Reddy and placed in using the following query:
+
+####Read in and Analyze ADSP SORCS2 dataset
+
+The data we have on the 4 common SORCS2 missense variants in our ADSP dataset was captured by Joseph Reddy. I placed this dataset (SORCS2_flat_file.txt) in my local SORSC2 repo.The following block reads the data in, creates PLINK, files and then analyzes them in PLINK as for the SORCS2 dataset from the Younkin database.
+
+```{r}
+SORCS2_ADSP <- read.table("SORCS2_flat_file.txt", header = T)
+str(SORCS2_ADSP);head(SORCS2_ADSP);tail(SORCS2_ADSP)
+```
+
+
 
 ###Ben and Leonie's Content
 First draft of gene diagram - exact positions and lengths of exons to be added.
