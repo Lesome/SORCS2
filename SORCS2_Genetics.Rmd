@@ -254,9 +254,24 @@ text(520000,180, labels= "C-tail",cex=0.5,col="orange3")
 ```
 
 ###Joseph's Content
+ADSP data was processed using the Genome GPS pipeline by the Bioinformatics Core in Rochestor. After variant calling (using 'GenotypeGVCFs' in the GATK pipeline), variants were annotated using BioR.  
+Variants from genes of interest (here, SORCS2) were identified and processed using Perl scripts to generate files for downstream analysis.
 
 ```{r}
+system("perl generate_flat_file_SG.pl ADSP ADSP_sample_sex_age_AD_APOE.txt SORCS2_variants.txt 1000 SORCS2_ff.txt SORCS2_allele_counts.txt")
 
+#Sex : 0: Male, 1: Female
+#Case/Control: 0: Control, 1: AD, 2: Probable AD
+#Call: 11/12/22
+#Genotype: 0/0, 0/1, 1/1,  [./., ./0, ./1, 0/., 1/. encoded as NA]
+
+#Importing Flat File
+SORCS2_FF <- read.table("SORCS2_ff.txt",header = TRUE, check.names = FALSE)
+head(SORCS2_FF)
+
+#Importing allele counts for each variant
+SORCS2_variants <- read.table("SORCS2_allele_counts.txt", header = TRUE, check.names = FALSE)
+head(SORCS2_variants)
 ```
 
 
