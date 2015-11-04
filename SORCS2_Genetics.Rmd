@@ -190,6 +190,7 @@ list.files()
 The data we have on the 4 common SORCS2 missense variants in our ADSP dataset was captured by Joseph Reddy. I placed this dataset (SORCS2_flat_file.txt) in my local SORSC2 repo.The following block reads the data in, creates PLINK, files and then analyzes them in PLINK as for the SORCS2 dataset from the Younkin database.
 
 ```{r}
+        #Read in data on 4 common SORCS2 missense variants in the ADSP database        #
 SORCS2_ADSP <- read.table("SORCS2_flat_file.txt", header = T)
 str(SORCS2_ADSP);head(SORCS2_ADSP);tail(SORCS2_ADSP)
 ```
