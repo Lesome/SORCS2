@@ -13,32 +13,31 @@ Recent cached web-check found... OK, v1.07 is current
 
 +++ PLINK 1.9 is now available! See above website for details +++ 
 
-Writing this text to log file [ SORCS2assoc.log ]
-Analysis started: Wed Nov 04 15:36:04 2015
+Writing this text to log file [ ADSPassoc.log ]
+Analysis started: Fri Nov 06 11:15:34 2015
 
 Options in effect:
-	--lfile SORCS2
+	--lfile ADSP
 	--assoc
-	--counts
-	--out SORCS2assoc
+	--out ADSPassoc
 
-4 (of 4) markers to be included from [ SORCS2.map ]
-Reading pedigree information from [ SORCS2.fam ] 
-7727 individuals read from [ SORCS2.fam ] 
-7727 individuals with nonmissing phenotypes
+4 (of 4) markers to be included from [ ADSP.map ]
+Reading pedigree information from [ ADSP.fam ] 
+954 individuals read from [ ADSP.fam ] 
+954 individuals with nonmissing phenotypes
 Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
 Missing phenotype value is also -9
-3567 cases, 4160 controls and 0 missing
-3193 males, 4534 females, and 0 of unspecified sex
+454 cases, 500 controls and 0 missing
+400 males, 554 females, and 0 of unspecified sex
 Before frequency and genotyping pruning, there are 4 SNPs
-7727 founders and 0 non-founders found
-Total genotyping rate in remaining individuals is 0.95891
+954 founders and 0 non-founders found
+Total genotyping rate in remaining individuals is 1
 0 SNPs failed missingness test ( GENO > 1 )
 0 SNPs failed frequency test ( MAF < 0 )
 After frequency and genotyping pruning, there are 4 SNPs
-After filtering, 3567 cases, 4160 controls and 0 missing
-After filtering, 3193 males, 4534 females, and 0 of unspecified sex
-Writing main association results to [ SORCS2assoc.assoc ] 
+After filtering, 454 cases, 500 controls and 0 missing
+After filtering, 400 males, 554 females, and 0 of unspecified sex
+Writing main association results to [ ADSPassoc.assoc ] 
 
-Analysis finished: Wed Nov 04 15:36:04 2015
+Analysis finished: Fri Nov 06 11:15:34 2015
 
