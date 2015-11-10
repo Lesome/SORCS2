@@ -14,7 +14,7 @@ Recent cached web-check found... OK, v1.07 is current
 +++ PLINK 1.9 is now available! See above website for details +++ 
 
 Writing this text to log file [ ADSPlogAllCov.log ]
-Analysis started: Fri Nov 06 11:15:34 2015
+Analysis started: Mon Nov 09 15:28:50 2015
 
 Options in effect:
 	--lfile ADSP
@@ -46,5 +46,5 @@ After filtering, 400 males, 554 females, and 0 of unspecified sex
 Converting data to Individual-major format
 Writing logistic model association results to [ ADSPlogAllCov.assoc.logistic ] 
 
-Analysis finished: Fri Nov 06 11:15:35 2015
+Analysis finished: Mon Nov 09 15:28:51 2015
 

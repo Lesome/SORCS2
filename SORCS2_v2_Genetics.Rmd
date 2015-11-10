@@ -29,6 +29,7 @@ Our goal, which we may or may not achieve, will be to complete a "publication re
     + dplyr
     + data.table
 5. PLINK installed and set up so it can be called by R with system("plink......")
+6. Perl installed and set up so it can be called by R with system("   ")
 
 ###Useful documentation:
 1. GitHub
@@ -41,25 +42,194 @@ Our goal, which we may or may not achieve, will be to complete a "publication re
     + http://pngu.mgh.harvard.edu/~purcell/plink/
     
 ###Responsibility for Specific Analysis Steps:
-1. Provide existing SORCS2 dataset(s) and initate analyses calling PLINK from R
-    + Steve has done this with Joseph's help
-2. Short-term goals for Steve's R script
-    + Read in Joseph's current ADSP dataset and generate PLINK files
-    + Read in and display PLINK files that are being generated
-    + Generate function(s) creating PLINK files from input dataset(s)
-    + Figure our how best to display manuscript text and write the introduction.
+1. Read in existing SORCS2 dataset(s) and initate analysis
+    + Steve made the Younkin db (Ydb) dataset available, Joseph made the ADSP dataset available
+    + Steve developed functions to read in and analyze the SORCS2 datasets from Ydb (ydb2plink) and adsp2plink. 
+    + Steve will complete this analysis, determine how best to display manuscript text, write the introduction.
 3. Download ADSP SORCS2 dataset
-    + Joseph has downloaded dataset for 1000 sampleswill do this as the data become available (3000 samples should soon be ready)
+    + Joseph has downloaded dataset for 1000 samples and will do the rest as the data become available (3000 samples may soon be ready)
 4. Create Figure 1 showing a SORCS2 gene diagram with information on SNP location etc.
-    + Ben and Leonie are working on this. 
+    + Ben and Leonie are working on this with Maarten's help. 
        
 ###Steve's Content
 
 ####Introduction
 
+This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.
+        
+This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.
+        
+####Function to read in and analyze initial Ydb SORCS2 dataset analyzed in 10/14 by Chris Medway.
 
-####Read in and Analyze Ydb SORCS2 dataset
-The data we have on the 4 common SORCS2 missense variants in the Younkin database (YdB) was captured using the following query:
+On 10/27/14, I sent an email to Anders to which was attached a flat file with our initial Ydb SORCS2 data and some analyses performed by Chris Medway. This flat file, now named SORCS2_CM.csv, was copied into our SORSC2 repo.
+
+```{r, echo=FALSE}
+
+                #Create function to read in dataset from Chris Medway (10/27/14)
+                #make PLINK files (map, fam, cov.txt, and lgen) and analyze them.
+cm2plink <- function(input="SORCS2_CM.csv", output="SORCS2_CM") {
+
+                #load requisite packages       
+library(data.table)
+suppressWarnings(suppressMessages(library(dplyr)))
+        
+                #Read in dataset generated from the Younkin database
+input <- "SORCS2_CM.csv"
+data <- read.table(input, sep=',', stringsAsFactors = FALSE, header=T)
+#str(data);head(data); tail(data)
+
+                #Create output files
+output <- "SORCS2.CM"
+out1 <- paste(output,sep="",".map")
+out2 <- paste(output,sep="",".fam")
+out3 <- paste(output,sep="","_cov.txt")
+out4 <- paste(output,sep="",".lgen")
+out5 <- paste(output,sep="",".plink.csv")
+#print(out1);print(out2);print(out3);print(out4);print(out5)
+
+                #Generate PLINK map file by copying and renaming "SORCS2_YdB.map"
+map <- read.table("SORCS2_YdB.map", stringsAsFactors = FALSE, header=F)
+#print(map,row.names=F, col.names=F)
+write.table(map,out1,sep='\t',quote=FALSE,row.names=F,col.names=F)
+
+        #In his flat file, Chris encoded each SNP as a separate column with 0,1,2 coding
+        #There'is additional wrangling to do to produce map, fam, cov, and lgen files
+
+        #Add columns that are not in Chris file and rename as needed
+data <- mutate(data, PID=0, MID=0, rs="rs", A1=0, A2=0)
+data <- rename (data,IID=SubKey, AFF=Dx2, JS=JS_SIB, NCRAD=INDIANA, Age=DxAge, APOE4dose=APOE4, APOE2dose=APOE2)
+#str(data)
+
+        #Recode as needed to conform to PLINK cov and fam conventions
+data[data$AFF == 1,][, "AFF"] <- 2
+data[data$AFF == 0,][, "AFF"] <- 1
+
+data[data$SEX == 1,][, "SEX"] <- 2
+data[data$SEX == 0,][, "SEX"] <- 1
+
+        #Check coding for PLINK
+#print(data %>% group_by(AFF,SEX,APOE4dose, APOE2dose,A1,A2) %>% summarize(n=n()))
+#print.data.frame(data %>% group_by(A1,A2) %>% summarize(n=n()))
+#print.data.frame(data %>% group_by(rs,AFF) %>% summarize(n=n()))
+#print.data.frame(data %>% group_by(SEX) %>% summarize(n=n()))
+#print.data.frame(data %>% group_by(APOE4dose,APOE2dose) %>% summarize(n=n()))      
+#print.data.frame(y)
+
+        #Create PLINK fam file
+fam <- select(data,FID,IID,PID,MID,SEX,AFF)
+fam <- distinct(fam)
+#str(fam); head(fam); tail(fam)
+write.table(fam,out2,sep='\t',quote=FALSE,row.names=F,col.names=F)
+#SORCS2fam=read.table("SORCS2.fam", header = F)
+#str(SORCS2fam);head(SORCS2fam);tail(SORCS2fam)
+
+        #Create PLINK cov file; 
+        #Not sure why, but errors sometimes occurred in r when using out3.cov" as output using write.table
+        #So I used "out3_cov.txt" thereby avoiding this problem
+cov <- select(data,FID,IID,JS,RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose)
+cov <- distinct(cov)
+#str(cov)
+write.table(cov,out3,sep='\t',quote=FALSE,row.names=F,col.names=T)
+#SORCS2cov=read.table, out3, header = T)
+#str(SORCS2cov);head(SORCS2cov); tail(SORCS2cov)
+
+        #Create PLINK lgen file
+        #
+lgen <- select(data,FID,IID,SORCS2_rs34058821_GA,rs,A1,A2)
+#str(lgen)
+lgen <- rename(lgen, Call=SORCS2_rs34058821_GA)
+#str(lgen)
+lgen <- mutate(lgen, rs="rs34058821")
+#str(lgen)
+call <- c(0,1,2)
+lgen <- filter(lgen, Call %in% call)
+#print.data.frame(lgen %>% group_by(rs,Call) %>% summarize(n()))
+
+x <- select(data,FID,IID,SORCS2_rs35935435_CA,rs,A1,A2)
+#str(x)
+x <- rename(x, Call=SORCS2_rs35935435_CA)
+#str(x)
+x <- mutate(x, rs="rs35935435")
+#str(x)
+call <- c(0,1,2)
+x <- filter(x, Call %in% call)
+#print.data.frame(x %>% group_by(rs,Call) %>% summarize(n()))
+
+lgen <- bind_rows(lgen,x)
+#print.data.frame(lgen %>% group_by(rs,Call) %>% summarize(n()))
+
+x <- select(data,FID,IID,SORCS2_rs16840892_CT,rs,A1,A2)
+#str(x)
+x <- rename(x, Call=SORCS2_rs16840892_CT)
+#str(x)
+x <- mutate(x, rs="rs16840892")
+#str(x)
+call <- c(0,1,2)
+x <- filter(x, Call %in% call)
+#print.data.frame(x %>% group_by(rs,Call) %>% summarize(n()))
+
+lgen <- bind_rows(lgen,x)
+#print.data.frame(lgen %>% group_by(rs,Call) %>% summarize(n()))
+
+x <- select(data,FID,IID,SORCS2_rs6816604_CT,rs,A1,A2)
+#str(x)
+x <- rename(x, Call=SORCS2_rs6816604_CT)
+#str(x)
+x <- mutate(x, rs="rs6816604")
+#str(x)
+call <- c(0,1,2)
+x <- filter(x, Call %in% call)
+#print.data.frame(x %>% group_by(rs,Call) %>% summarize(n()))
+
+lgen <- bind_rows(lgen,x)
+#print.data.frame(lgen %>% group_by(rs,Call) %>% summarize(n()))
+
+lgen[lgen$Call == 0,][, "A1"] <- 1
+lgen[lgen$Call == 1,][, "A1"] <- 1
+lgen[lgen$Call == 2,][, "A1"] <- 2
+
+lgen[lgen$Call == 0,][, "A2"] <- 1
+lgen[lgen$Call == 1,][, "A2"] <- 2
+lgen[lgen$Call == 2,][, "A2"] <- 2
+
+#print.data.frame(lgen %>% group_by(rs,Call,A1,A2) %>% summarize(n()))
+
+lgen <- select(lgen,FID,IID,rs,A1,A2)
+#str(lgen)
+write.table(lgen,out4,sep='\t',quote=FALSE,row.names=F,col.names=F)
+#SORCS2lgen=read.table("SORCS2.lgen", header = F)
+#str(SORCS2lgen)
+
+assoc <- paste("plink",sep=" ","--lfile", output, "--assoc", "--ci 0.95", "--out", output)
+logistic <- paste("plink",sep=" ","--lfile", output, "--logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--out", output)
+assocfile <- paste(output,sep="",".assoc")
+logisfile <- paste(output,sep="",".assoc.logistic")
+system(assoc)
+system(logistic)
+f1 <- read.table(assocfile, header=T)
+#print(f1)
+f1 <- f1 %>% select(CHR,SNP,BP,F_A, F_U, OR, P) %>% rename(FREQ_AD=F_A, FREQ_CON=F_U, OR_assoc=OR, P_assoc=P)
+print(f1,digits=2,row.names=F)
+#head(f1)
+f1 <- f1 %>% select(CHR,SNP,BP,FREQ_AD,FREQ_CON)
+f2 <- read.table(logisfile, header=T)
+#print(f2)
+f2 <- f2 %>% filter (TEST=="ADD") %>% select (SNP,NMISS,OR,L95,U95,P) %>% rename(OR_logis=OR, P_logis=P)
+#head(f2)
+f3<- left_join(f1,f2,by="SNP")
+print(f3,digits=2,row.names=F)
+write.table(f3,out5,sep=",", quote=FALSE,row.names=F,col.names=T)
+#print("PLINK commands:");print(assoc);print(logistic)
+}
+
+```
+####Analyze SORCS2 dataset from Chris Medway
+```{r}
+cm2plink(input="SORCS2_CM.csv", output="SORCS2_CM")
+```
+
+####Function to read in and analyze Ydb SORCS2 dataset
+The data we have on the 4 common SORCS2 missense variants in the Younkin database (YdB) were captured using the following query:
 
 SELECT        TOP (100) PERCENT Younkin.dbo.Subject.SubKey, Younkin.dbo.Subject.SubjectIDType, Younkin.dbo.Subject.SubjectIDValue, Younkin.dbo.Subject.Series, 
                          Younkin.dbo.Subject.Dx, Younkin.dbo.Subject.ApoE, Younkin.dbo.Subject.DxAge, Younkin.dbo.Subject.Gend, Younkin.dbo.Variant.VariantID, 
@@ -77,17 +247,27 @@ ORDER BY Younkin.dbo.Variant.VariantID
 
 The results of this query were copied into SORCS2_Ydb.csv
 
-```{r}
+```{r, echo=FALSE}
 
-                #Create function that reads in a dataset generated by querying Younkin database and outputs PLINK map, fam, cov.txt, and lgen files
-ydb2plink <- function(file="SORCS2_Ydb.csv", out1="SORCS2_YdB.map", out2="SORCS2_YdB.fam", out3="SORCS2_YdB_cov.txt", out4="SORCS2_YdB.lgen") {
+                #Create function to read in SQL-derived dataset from Younkin database, 
+                #make PLINK files (map, fam, cov.txt, and lgen) and analyze them.
+ydb2plink <- function(input="SORCS2_Ydb.csv", output="SORCS2_YdB") {
 
                 #load requisite packages       
 library(data.table)
-library(dplyr)
+suppressWarnings(suppressMessages(library(dplyr)))
         
                 #Read in dataset generated from the Younkin database
-data <- read.table(file, sep=',', stringsAsFactors = FALSE, header=T)
+data <- read.table(input, sep=',', stringsAsFactors = FALSE, header=T)
+
+                #Create output files
+#output <- "SORCS2_Ydb"
+out1 <- paste(output,sep="",".map")
+out2 <- paste(output,sep="",".fam")
+out3 <- paste(output,sep="","_cov.txt")
+out4 <- paste(output,sep="",".lgen")
+out5 <- paste(output,sep="",".plink.csv")
+#print(out1);print(out2);print(out3);print(out4);print(out5)
 
                 #Generate PLINK map file
 map <- select(data,chr, rs, position)
@@ -102,17 +282,16 @@ write.table(map,out1,sep='\t',quote=FALSE,row.names=F,col.names=F)
                 #Dx = AD or CON, Gend = M or F, ApoE = 22,23,24,33,34,or 44 
                 #Series = JS,SibPair_White,RS,AUT,Indiana,NW, DxAge >= 65, BestCall = 1
                 #Age (at diagnosis for AD/at entry for CON) of 65 or over
-library(dplyr)
 dx <- c("AD","CON")
 sex <- c("M","F")
 apoe <- c(22,23,24,33,34,44)
 series <- c("JS", "RS", "AUT", "Indiana", "SibPair_White", "NW")
 data <- filter(data, Dx %in% dx, Gend %in% sex, ApoE %in% apoe, Series %in% series, BestCall == 1)
-data <- mutate(data,Age=as.numeric(DxAge))
+data <-suppressWarnings(mutate(data,Age=as.numeric(DxAge)))
 data <- filter (data, Age >= 65)
 
-        #Create variables for PLINK fam, cov, and lgen files
-data <- mutate(data, AFF=99, A1=99, A2=99, APOE4dose=99, APOE2dose=99, SEX=99, JS=0, RS=0, AUT=0, NCRAD=0, NW=0, FID=0, IID=SubKey, PID=0, MID=0)
+        #Create columns for PLINK fam, cov, and lgen files
+data <- mutate(data, AFF=99, A1=99, A2=99, APOE4dose=99, APOE2dose=99, SEX=99, JS=0, RS=0, AUT=0, NCRAD=0,NW=0, FID=0, IID=SubKey, PID=0, MID=0)
 
 data[data$Dx == "AD",][, "AFF"] <- 2
 data[data$Dx == "CON",][, "AFF"] <- 1
@@ -149,8 +328,13 @@ data[data$Series == "AUT",][, "AUT"] <- 1
 data[data$Series == "Indiana",][, "NCRAD"] <- 1
 data[data$Series == "NW",][, "NW"] <- 1
 
-#y <- data %>% filter(rs=="rs6816604",JS==1) %>% group_by(rs,Dx,A1,A2) %>% summarize(n=n())
-#print(y)
+        #Check coding for PLINK
+#print(data %>% group_by(rs,AFF,SEX,APOE4dose, APOE2dose,A1,A2) %>% summarize(n=n()))
+#print.data.frame(data %>% group_by(rs,A1,A2) %>% summarize(n=n()))
+#print.data.frame(data %>% group_by(rs,AFF) %>% summarize(n=n()))
+#print.data.frame(data %>% group_by(rs,SEX) %>% summarize(n=n()))
+#print.data.frame(data %>% group_by(APOE4dose,APOE2dose) %>% summarize(n=n()))      
+#print.data.frame(y)
 
         #Create PLINK fam file
 fam <- select(data,FID,IID,PID,MID,SEX,AFF)
@@ -159,7 +343,6 @@ fam <- distinct(fam)
 write.table(fam,out2,sep='\t',quote=FALSE,row.names=F,col.names=F)
 #SORCS2fam=read.table("SORCS2.fam", header = F)
 #str(SORCS2fam);head(SORCS2fam);tail(SORCS2fam)
-
 
         #Create PLINK cov file; 
         #Not sure why, but errors sometimes occurred in r when using "SORCS2.cov"" as output using write.table
@@ -177,28 +360,57 @@ lgen <- select(data,FID,IID,rs,A1,A2)
 write.table(lgen,out4,sep='\t',quote=FALSE,row.names=F,col.names=F)
 #SORCS2lgen=read.table("SORCS2.lgen", header = F)
 #str(SORCS2lgen)
+
+assoc <- paste("plink",sep=" ","--lfile", output, "--assoc", "--ci 0.95", "--out", output)
+logistic <- paste("plink",sep=" ","--lfile", output, "--logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--out", output)
+assocfile <- paste(output,sep="",".assoc")
+logisfile <- paste(output,sep="",".assoc.logistic")
+system(assoc)
+system(logistic)
+f1 <- read.table(assocfile, header=T)
+#print(f1)
+f1 <- f1 %>% select(CHR,SNP,BP,F_A, F_U, OR, P) %>% rename(FREQ_AD=F_A, FREQ_CON=F_U, OR_assoc=OR, P_assoc=P)
+print(f1,digits=2,row.names=F)
+#head(f1)
+f1 <- f1 %>% select(CHR,SNP,BP,FREQ_AD,FREQ_CON)
+f2 <- read.table(logisfile, header=T)
+#print(f2)
+f2 <- f2 %>% filter (TEST=="ADD") %>% select (SNP,NMISS,OR,L95,U95,P) %>% rename(OR_logis=OR, P_logis=P)
+#head(f2)
+f3<- left_join(f1,f2,by="SNP")
+print(f3,digits=2,row.names=F)
+write.table(f3,out5,sep=",", quote=FALSE,row.names=F,col.names=T)
+#print("PLINK commands:");print(assoc);print(logistic)
 }
-ydb2plink(file="SORCS2_Ydb.csv",out1="t1.map",out2="t1.fam", out3="t1.txt", out4="t1.lgen")
 
-
+```
+####Analyze SORCS2 dataset from Ydb
+```{r}
+ydb2plink(input="SORCS2_Ydb.csv", output="SORCS2_YdB")
+#print(assoc)
+```
+       
         #PLINK --assoc: analyzes standard case/control (allelic) association with LOAD, no covariates
-system("plink --lfile t1 --assoc --out t1assoc")
-SORCS2assoc <- read.table("t1assoc.assoc", header = T)
-str(SORCS2assoc);head(SORCS2assoc);tail(SORCS2assoc)
+#system("plink --lfile output --assoc --ci 0.95 --out output")
+#t1assoc <- read.table(paste(output, sep="", ".assoc"), header = T)
+#str(SORCS2assoc);head(SORCS2assoc);tail(SORCS2assoc)
 
-        #PLINK --assoc: analyzes association by logistic regression using an additive model with with covariates
-system("plink --lfile t1 --logistic --ci 0.95 --covar t1.txt --covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose --out t1logAllCov")
-SORCS2logAll <- read.table("t1logAllCov.assoc.logistic", header = T)
-str(SORCS2logAll);head(SORCS2logAll);tail(SORCS2logAll)
-x <- select (SORCS2logAll, SNP,TEST,NMISS, OR, L95, U95, P)
-print.data.frame(x)
-x <- filter(x, TEST=="ADD")
-print.data.frame(x)
+#ydb2plink()
+
+        #PLINK --logistic: analyzes association by logistic regression using an additive model with all covariates
+#system("plink --lfile output --logistic --ci 0.95 --covar out3 --covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose --out output")
+#t2logistic <- read.table(paste(output, sep="", ".assoc.logisitc", header = T)
+
+#str(SORCS2logAll);head(SORCS2logAll);tail(SORCS2logAll)
+#x <- select (SORCS2logAll, SNP,TEST,NMISS, OR, L95, U95, P)
+#print.data.frame(x)
+#x <- filter(x, TEST=="ADD")
+#print.data.frame(x)
 
 #system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --out SORCS2haplogAllCov")
 #system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --hap-omnibus --out SORCS2haplogAllCovOmni")
 #system("plink --lfile SORCS2 --logistic --ci 0.95 --covar SORCS2cov.txt --covar-name APOE4dose,APOE2dose --out SORCS2logAPOECov")
-list.files()
+#list.files()
 ```
 
 
@@ -314,20 +526,20 @@ write.table(lgen,out4,sep='\t',quote=FALSE,row.names=F,col.names=F)
 #SORCS2lgen_1=read.table("SORCS2_1.lgen", header = F)
 #str(SORCS2lgen_1);head(SORCS2lgen_1);tail(SORCS2lgen_1)
 }
-ADSP2plink(,out1="ADSP.map", out2="ADSP.fam", out3="ADSPcov.txt", out4="ADSP.lgen")
+#ADSP2plink(,out1="ADSP.map", out2="ADSP.fam", out3="ADSPcov.txt", out4="ADSP.lgen")
 list.files()
 
 
         #PLINK --assoc: analyzes standard case/control (allelic) association with LOAD, no covariates
-system("plink --lfile ADSP --assoc  --out ADSPassoc")
-ADSPassoc <- read.table("ADSPassoc.assoc", header = T)
-str(ADSPassoc);head(ADSPassoc);tail(ADSPassoc)
+#system("plink --lfile ADSP --assoc  --out ADSPassoc")
+#ADSPassoc <- read.table("ADSPassoc.assoc", header = T)
+#str(ADSPassoc);head(ADSPassoc);tail(ADSPassoc)
 
         #PLINK --assoc: analyzes association by logistic regression using an additive model with with covariates
-system("plink --lfile ADSP --logistic --ci 0.95 --covar ADSPcov.txt --covar-name SEX,APOE4dose,APOE2dose --out ADSPlogAllCov")
-y <- read.table("ADSPlogAllCov.assoc.logistic", header=T)
-print.data.frame(y)
-print.data.frame(x)
+#system("plink --lfile ADSP --logistic --ci 0.95 --covar ADSPcov.txt --covar-name SEX,APOE4dose,APOE2dose --out ADSPlogAllCov")
+#y <- read.table("ADSPlogAllCov.assoc.logistic", header=T)
+#print.data.frame(y)
+#print.data.frame(x)
 #a<- read.table("ADSPcov.txt", header=T)
 #print.data.frame(a)
 ```
@@ -421,6 +633,6 @@ head(SORCS2_FF)
 SORCS2_variants <- read.table("SORCS2_allele_counts.txt", header = TRUE, check.names = FALSE)
 head(SORCS2_variants)
 ```
-
+y
 
 

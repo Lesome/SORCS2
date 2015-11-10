@@ -94,6 +94,7 @@ img {
 <li>data.table</li>
 </ul></li>
 <li>PLINK installed and set up so it can be called by R with system(“plink……”)</li>
+<li>Perl installed and set up so it can be called by R with system(&quot; “)</li>
 </ol>
 </div>
 <div id="useful-documentation" class="section level3">
@@ -120,24 +121,19 @@ img {
 <div id="responsibility-for-specific-analysis-steps" class="section level3">
 <h3>Responsibility for Specific Analysis Steps:</h3>
 <ol style="list-style-type: decimal">
-<li>Provide existing SORCS2 dataset(s) and initate analyses calling PLINK from R
+<li>Read in existing SORCS2 dataset(s) and initate analysis
 <ul>
-<li>Steve has done this with Joseph’s help</li>
-</ul></li>
-<li>Short-term goals for Steve’s R script
-<ul>
-<li>Read in Joseph’s current ADSP dataset and generate PLINK files</li>
-<li>Read in and display PLINK files that are being generated</li>
-<li>Generate function(s) creating PLINK files from input dataset(s)</li>
-<li>Figure our how best to display manuscript text and write the introduction.</li>
+<li>Steve made the Younkin db (Ydb) dataset available, Joseph made the ADSP dataset available</li>
+<li>Steve developed functions to read in and analyze the SORCS2 datasets from Ydb (ydb2plink) and adsp2plink.</li>
+<li>Steve will complete this analysis, determine how best to display manuscript text, write the introduction.</li>
 </ul></li>
 <li>Download ADSP SORCS2 dataset
 <ul>
-<li>Joseph has downloaded dataset for 1000 sampleswill do this as the data become available (3000 samples should soon be ready)</li>
+<li>Joseph has downloaded dataset for 1000 samples and will do the rest as the data become available (3000 samples may soon be ready)</li>
 </ul></li>
 <li>Create Figure 1 showing a SORCS2 gene diagram with information on SNP location etc.
 <ul>
-<li>Ben and Leonie are working on this.</li>
+<li>Ben and Leonie are working on this with Maarten’s help.</li>
 </ul></li>
 </ol>
 </div>
@@ -145,301 +141,97 @@ img {
 <h3>Steve’s Content</h3>
 <div id="introduction" class="section level4">
 <h4>Introduction</h4>
+<p>This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.</p>
+<p>This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.This is just some text to read in.</p>
 </div>
-<div id="read-in-and-analyze-ydb-sorcs2-dataset" class="section level4">
-<h4>Read in and Analyze Ydb SORCS2 dataset</h4>
-<p>The data we have on the 4 common SORCS2 missense variants in the Younkin database (YdB) was captured using the following query:</p>
+<div id="function-to-read-in-and-analyze-initial-ydb-sorcs2-dataset-analyzed-in-1014-by-chris-medway." class="section level4">
+<h4>Function to read in and analyze initial Ydb SORCS2 dataset analyzed in 10/14 by Chris Medway.</h4>
+<p>On 10/27/14, I sent an email to Anders to which was attached a flat file with our initial Ydb SORCS2 data and some analyses performed by Chris Medway. This flat file, now named SORCS2_CM.csv, was copied into our SORSC2 repo.</p>
+</div>
+<div id="analyze-sorcs2-dataset-from-chris-medway" class="section level4">
+<h4>Analyze SORCS2 dataset from Chris Medway</h4>
+<pre class="r"><code>cm2plink(input=&quot;SORCS2_CM.csv&quot;, output=&quot;SORCS2_CM&quot;)</code></pre>
+<pre><code>##  CHR        SNP      BP FREQ_AD FREQ_CON OR_assoc P_assoc
+##    4 rs34058821 7666160   0.043   0.0568     0.75   0.006
+##    4 rs35935435 7666180   0.019   0.0164     1.19   0.132
+##    4 rs16840892 7716061   0.011   0.0099     1.14   0.455
+##    4  rs6816604 7716932   0.055   0.0578     0.94   0.345
+##  CHR        SNP      BP FREQ_AD FREQ_CON NMISS OR_logis  L95  U95 P_logis
+##    4 rs34058821 7666160   0.043   0.0568  3900     0.72 0.57 0.93  0.0108
+##    4 rs35935435 7666180   0.019   0.0164  8678     1.08 0.81 1.44  0.5798
+##    4 rs16840892 7716061   0.011   0.0099  5895     1.18 0.76 1.82  0.4576
+##    4  rs6816604 7716932   0.055   0.0578  8707     0.80 0.68 0.94  0.0071</code></pre>
+</div>
+<div id="function-to-read-in-and-analyze-ydb-sorcs2-dataset" class="section level4">
+<h4>Function to read in and analyze Ydb SORCS2 dataset</h4>
+<p>The data we have on the 4 common SORCS2 missense variants in the Younkin database (YdB) were captured using the following query:</p>
 <p>SELECT TOP (100) PERCENT Younkin.dbo.Subject.SubKey, Younkin.dbo.Subject.SubjectIDType, Younkin.dbo.Subject.SubjectIDValue, Younkin.dbo.Subject.Series, Younkin.dbo.Subject.Dx, Younkin.dbo.Subject.ApoE, Younkin.dbo.Subject.DxAge, Younkin.dbo.Subject.Gend, Younkin.dbo.Variant.VariantID, Younkin.dbo.Variant.VariantName, Younkin.dbo.VariantDataAll.Call, Younkin.dbo.VariantDataAll.BestCall, Younkin.dbo.Variant_New.chr, Younkin.dbo.Variant_New.position, Younkin.dbo.Variant_New.rs FROM Younkin.dbo.VariantDataAll INNER JOIN Younkin.dbo.Variant ON Younkin.dbo.VariantDataAll.VariantID = Younkin.dbo.Variant.VariantID INNER JOIN Younkin.dbo.Subject ON Younkin.dbo.VariantDataAll.SKey = Younkin.dbo.Subject.SubKey INNER JOIN Younkin.dbo.Variant_New ON Younkin.dbo.VariantDataAll.VariantID = Younkin.dbo.Variant_New.VariantID WHERE (Younkin.dbo.Variant.VariantID = 2069 OR Younkin.dbo.Variant.VariantID = 2070 OR Younkin.dbo.Variant.VariantID = 2072 OR Younkin.dbo.Variant.VariantID = 2073) ORDER BY Younkin.dbo.Variant.VariantID</p>
 <p>The results of this query were copied into SORCS2_Ydb.csv</p>
-<pre class="r"><code>                #Create function that reads in a dataset generated by querying Younkin database and outputs PLINK map, fam, cov.txt, and lgen files
-ydb2plink &lt;- function(file=&quot;SORCS2_Ydb.csv&quot;, out1=&quot;SORCS2_YdB.map&quot;, out2=&quot;SORCS2_YdB.fam&quot;, out3=&quot;SORCS2_YdB_cov.txt&quot;, out4=&quot;SORCS2_YdB.lgen&quot;) {
-
-                #load requisite packages       
-library(data.table)
-library(dplyr)
-        
-                #Read in dataset generated from the Younkin database
-data &lt;- read.table(file, sep=',', stringsAsFactors = FALSE, header=T)
-
-                #Generate PLINK map file
-map &lt;- select(data,chr, rs, position)
-map &lt;- mutate(map,morgans=0)
-map &lt;- rename(map, bp=position)
-map &lt;- select(map,chr,rs,morgans,bp)
-map &lt;- distinct(map)
-#print(map)
-write.table(map,out1,sep='\t',quote=FALSE,row.names=F,col.names=F)
-
-                #Filter, using dplyr package, to include only subjects with: 
-                #Dx = AD or CON, Gend = M or F, ApoE = 22,23,24,33,34,or 44 
-                #Series = JS,SibPair_White,RS,AUT,Indiana,NW, DxAge &gt;= 65, BestCall = 1
-                #Age (at diagnosis for AD/at entry for CON) of 65 or over
-library(dplyr)
-dx &lt;- c(&quot;AD&quot;,&quot;CON&quot;)
-sex &lt;- c(&quot;M&quot;,&quot;F&quot;)
-apoe &lt;- c(22,23,24,33,34,44)
-series &lt;- c(&quot;JS&quot;, &quot;RS&quot;, &quot;AUT&quot;, &quot;Indiana&quot;, &quot;SibPair_White&quot;, &quot;NW&quot;)
-data &lt;- filter(data, Dx %in% dx, Gend %in% sex, ApoE %in% apoe, Series %in% series, BestCall == 1)
-data &lt;- mutate(data,Age=as.numeric(DxAge))
-data &lt;- filter (data, Age &gt;= 65)
-
-        #Create variables for PLINK fam, cov, and lgen files
-data &lt;- mutate(data, AFF=99, A1=99, A2=99, APOE4dose=99, APOE2dose=99, SEX=99, JS=0, RS=0, AUT=0, NCRAD=0, NW=0, FID=0, IID=SubKey, PID=0, MID=0)
-
-data[data$Dx == &quot;AD&quot;,][, &quot;AFF&quot;] &lt;- 2
-data[data$Dx == &quot;CON&quot;,][, &quot;AFF&quot;] &lt;- 1
-
-data[data$Call == 11,][, &quot;A1&quot;] &lt;- 1
-data[data$Call == 12,][, &quot;A1&quot;] &lt;- 1
-data[data$Call == 22,][, &quot;A1&quot;] &lt;- 2
-
-data[data$Call == 11,][, &quot;A2&quot;] &lt;- 1
-data[data$Call == 12,][, &quot;A2&quot;] &lt;- 2
-data[data$Call == 22,][, &quot;A2&quot;] &lt;- 2
-
-data[data$Gend == &quot;M&quot;,][, &quot;SEX&quot;] &lt;- 1
-data[data$Gend == &quot;F&quot;,][, &quot;SEX&quot;] &lt;- 2
-
-data[data$ApoE == 22,][, &quot;APOE4dose&quot;] &lt;- 0
-data[data$ApoE == 23,][, &quot;APOE4dose&quot;] &lt;- 0
-data[data$ApoE == 24,][, &quot;APOE4dose&quot;] &lt;- 1
-data[data$ApoE == 33,][, &quot;APOE4dose&quot;] &lt;- 0
-data[data$ApoE == 34,][, &quot;APOE4dose&quot;] &lt;- 1
-data[data$ApoE == 44,][, &quot;APOE4dose&quot;] &lt;- 2
-
-data[data$ApoE == 22,][, &quot;APOE2dose&quot;] &lt;- 2
-data[data$ApoE == 23,][, &quot;APOE2dose&quot;] &lt;- 1
-data[data$ApoE == 24,][, &quot;APOE2dose&quot;] &lt;- 1
-data[data$ApoE == 33,][, &quot;APOE2dose&quot;] &lt;- 0
-data[data$ApoE == 34,][, &quot;APOE2dose&quot;] &lt;- 0
-data[data$ApoE == 44,][, &quot;APOE2dose&quot;] &lt;- 0
-
-data[data$Series == &quot;JS&quot;,][, &quot;JS&quot;] &lt;- 1
-data[data$Series == &quot;SibPair_White&quot;,][, &quot;JS&quot;] &lt;- 1
-data[data$Series == &quot;RS&quot;,][, &quot;RS&quot;] &lt;- 1
-data[data$Series == &quot;AUT&quot;,][, &quot;AUT&quot;] &lt;- 1
-data[data$Series == &quot;Indiana&quot;,][, &quot;NCRAD&quot;] &lt;- 1
-data[data$Series == &quot;NW&quot;,][, &quot;NW&quot;] &lt;- 1
-
-#y &lt;- data %&gt;% filter(rs==&quot;rs6816604&quot;,JS==1) %&gt;% group_by(rs,Dx,A1,A2) %&gt;% summarize(n=n())
-#print(y)
-
-        #Create PLINK fam file
-fam &lt;- select(data,FID,IID,PID,MID,SEX,AFF)
-fam &lt;- distinct(fam)
-#str(fam); head(fam); tail(fam)
-write.table(fam,out2,sep='\t',quote=FALSE,row.names=F,col.names=F)
-#SORCS2fam=read.table(&quot;SORCS2.fam&quot;, header = F)
-#str(SORCS2fam);head(SORCS2fam);tail(SORCS2fam)
-
-        #Create PLINK cov file; 
-        #Not sure why, but errors sometimes occurred in r when using &quot;SORCS2.cov&quot;&quot; as output using write.table
-        #So I used &quot;SORCS2cov.txt&quot; thereby avoiding this problem
-cov &lt;- select(data,FID,IID,JS,RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose)
-cov &lt;- distinct(cov)
-#str(cov)
-write.table(cov,out3,sep='\t',quote=FALSE,row.names=F,col.names=T)
-#SORCS2cov=read.table(&quot;SORCS2cov.txt&quot;, header = T)
-#str(SORCS2cov);head(SORCS2cov); tail(SORCS2cov)
-
-        #Create PLINK lgen file
-lgen &lt;- select(data,FID,IID,rs,A1,A2)
-#str(lgen)
-write.table(lgen,out4,sep='\t',quote=FALSE,row.names=F,col.names=F)
-#SORCS2lgen=read.table(&quot;SORCS2.lgen&quot;, header = F)
-#str(SORCS2lgen)
-}
-ydb2plink(file=&quot;SORCS2_Ydb.csv&quot;,out1=&quot;t1.map&quot;,out2=&quot;t1.fam&quot;, out3=&quot;t1.txt&quot;, out4=&quot;t1.lgen&quot;)</code></pre>
-<pre><code>## 
-## Attaching package: 'dplyr'
-## 
-## The following objects are masked from 'package:data.table':
-## 
-##     between, last
-## 
-## The following objects are masked from 'package:stats':
-## 
-##     filter, lag
-## 
-## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre><code>## Warning in eval(substitute(expr), envir, enclos): NAs introduced by
-## coercion</code></pre>
-<pre class="r"><code>        #PLINK --assoc: analyzes standard case/control (allelic) association with LOAD, no covariates
-system(&quot;plink --lfile t1 --assoc --out t1assoc&quot;)
-SORCS2assoc &lt;- read.table(&quot;t1assoc.assoc&quot;, header = T)
-str(SORCS2assoc);head(SORCS2assoc);tail(SORCS2assoc)</code></pre>
-<pre><code>## 'data.frame':    4 obs. of  10 variables:
-##  $ CHR  : int  4 4 4 4
-##  $ SNP  : Factor w/ 4 levels &quot;rs16840892&quot;,&quot;rs34058821&quot;,..: 2 3 1 4
-##  $ BP   : int  7666160 7666180 7716061 7716932
-##  $ A1   : int  2 2 2 2
-##  $ F_A  : num  0.047 0.0198 0.0103 0.0554
-##  $ F_U  : num  0.0596 0.0164 0.0115 0.0568
-##  $ A2   : int  1 1 1 1
-##  $ CHISQ: num  10.96 2.398 0.562 0.13
-##  $ P    : num  0.00093 0.1215 0.4536 0.718
-##  $ OR   : num  0.778 1.208 0.888 0.975</code></pre>
-<pre><code>##   CHR        SNP      BP A1     F_A     F_U A2   CHISQ         P     OR
-## 1   4 rs34058821 7666160  2 0.04702 0.05961  1 10.9600 0.0009302 0.7785
-## 2   4 rs35935435 7666180  2 0.01979 0.01644  1  2.3980 0.1215000 1.2080
-## 3   4 rs16840892 7716061  2 0.01027 0.01155  1  0.5616 0.4536000 0.8876
-## 4   4  rs6816604 7716932  2 0.05540 0.05675  1  0.1304 0.7180000 0.9748</code></pre>
-<pre><code>##   CHR        SNP      BP A1     F_A     F_U A2   CHISQ         P     OR
-## 1   4 rs34058821 7666160  2 0.04702 0.05961  1 10.9600 0.0009302 0.7785
-## 2   4 rs35935435 7666180  2 0.01979 0.01644  1  2.3980 0.1215000 1.2080
-## 3   4 rs16840892 7716061  2 0.01027 0.01155  1  0.5616 0.4536000 0.8876
-## 4   4  rs6816604 7716932  2 0.05540 0.05675  1  0.1304 0.7180000 0.9748</code></pre>
-<pre class="r"><code>        #PLINK --assoc: analyzes association by logistic regression using an additive model with with covariates
-system(&quot;plink --lfile t1 --logistic --ci 0.95 --covar t1.txt --covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose --out t1logAllCov&quot;)
-SORCS2logAll &lt;- read.table(&quot;t1logAllCov.assoc.logistic&quot;, header = T)
-str(SORCS2logAll);head(SORCS2logAll);tail(SORCS2logAll)</code></pre>
-<pre><code>## 'data.frame':    36 obs. of  12 variables:
-##  $ CHR  : int  4 4 4 4 4 4 4 4 4 4 ...
-##  $ SNP  : Factor w/ 4 levels &quot;rs16840892&quot;,&quot;rs34058821&quot;,..: 2 2 2 2 2 2 2 2 2 3 ...
-##  $ BP   : int  7666160 7666160 7666160 7666160 7666160 7666160 7666160 7666160 7666160 7666180 ...
-##  $ A1   : int  2 2 2 2 2 2 2 2 2 2 ...
-##  $ TEST : Factor w/ 9 levels &quot;ADD&quot;,&quot;Age&quot;,&quot;APOE2dose&quot;,..: 1 8 5 6 7 9 2 4 3 1 ...
-##  $ NMISS: int  7065 7065 7065 7065 7065 7065 7065 7065 7065 7568 ...
-##  $ OR   : num  0.826 0.395 10.27 3.71 0.921 ...
-##  $ SE   : num  0.0954 0.0771 0.1026 0.1044 0.095 ...
-##  $ L95  : num  0.685 0.34 8.402 3.023 0.764 ...
-##  $ U95  : num  0.995 0.459 12.56 4.553 1.11 ...
-##  $ STAT : num  -2.009 -12.05 22.7 12.55 -0.865 ...
-##  $ P    : num  4.46e-02 1.90e-33 4.23e-114 3.88e-36 3.87e-01 ...</code></pre>
-<pre><code>##   CHR        SNP      BP A1  TEST NMISS      OR      SE    L95     U95
-## 1   4 rs34058821 7666160  2   ADD  7065  0.8257 0.09537 0.6849  0.9954
-## 2   4 rs34058821 7666160  2    RS  7065  0.3949 0.07708 0.3396  0.4594
-## 3   4 rs34058821 7666160  2   AUT  7065 10.2700 0.10260 8.4020 12.5600
-## 4   4 rs34058821 7666160  2 NCRAD  7065  3.7100 0.10440 3.0230  4.5530
-## 5   4 rs34058821 7666160  2    NW  7065  0.9211 0.09503 0.7645  1.1100
-## 6   4 rs34058821 7666160  2   SEX  7065  1.3790 0.06178 1.2220  1.5570
-##       STAT          P
-## 1  -2.0090  4.456e-02
-## 2 -12.0500  1.899e-33
-## 3  22.7000 4.233e-114
-## 4  12.5500  3.885e-36
-## 5  -0.8652  3.869e-01
-## 6   5.2020  1.975e-07</code></pre>
-<pre><code>##    CHR       SNP      BP A1      TEST NMISS     OR       SE    L95    U95
-## 31   4 rs6816604 7716932  2     NCRAD  7608 3.6230 0.101800 2.9670 4.4220
-## 32   4 rs6816604 7716932  2        NW  7608 0.8095 0.092420 0.6754 0.9702
-## 33   4 rs6816604 7716932  2       SEX  7608 1.4090 0.059550 1.2540 1.5830
-## 34   4 rs6816604 7716932  2       Age  7608 0.9915 0.004369 0.9831 1.0000
-## 35   4 rs6816604 7716932  2 APOE4dose  7608 4.5210 0.053550 4.0710 5.0210
-## 36   4 rs6816604 7716932  2 APOE2dose  7608 0.5558 0.092950 0.4632 0.6668
-##      STAT          P
-## 31 12.650  1.158e-36
-## 32 -2.287  2.220e-02
-## 33  5.756  8.630e-09
-## 34 -1.945  5.182e-02
-## 35 28.180 1.176e-174
-## 36 -6.319  2.625e-10</code></pre>
-<pre class="r"><code>x &lt;- select (SORCS2logAll, SNP,TEST,NMISS, OR, L95, U95, P)
-print.data.frame(x)</code></pre>
-<pre><code>##           SNP      TEST NMISS      OR    L95     U95          P
-## 1  rs34058821       ADD  7065  0.8257 0.6849  0.9954  4.456e-02
-## 2  rs34058821        RS  7065  0.3949 0.3396  0.4594  1.899e-33
-## 3  rs34058821       AUT  7065 10.2700 8.4020 12.5600 4.233e-114
-## 4  rs34058821     NCRAD  7065  3.7100 3.0230  4.5530  3.885e-36
-## 5  rs34058821        NW  7065  0.9211 0.7645  1.1100  3.869e-01
-## 6  rs34058821       SEX  7065  1.3790 1.2220  1.5570  1.975e-07
-## 7  rs34058821       Age  7065  0.9937 0.9849  1.0030  1.679e-01
-## 8  rs34058821 APOE4dose  7065  4.4040 3.9500  4.9110 8.796e-157
-## 9  rs34058821 APOE2dose  7065  0.5601 0.4644  0.6754  1.303e-09
-## 10 rs35935435       ADD  7568  1.1590 0.8507  1.5790  3.499e-01
-## 11 rs35935435        RS  7568  0.3592 0.3110  0.4148  3.885e-44
-## 12 rs35935435       AUT  7568  8.7240 7.2080 10.5600 1.136e-109
-## 13 rs35935435     NCRAD  7568  3.4510 2.8300  4.2090  1.916e-34
-## 14 rs35935435        NW  7568  0.6284 0.5177  0.7628  2.636e-06
-## 15 rs35935435       SEX  7568  1.3730 1.2210  1.5440  1.251e-07
-## 16 rs35935435       Age  7568  0.9875 0.9790  0.9961  4.518e-03
-## 17 rs35935435 APOE4dose  7568  4.4640 4.0170  4.9600 2.538e-170
-## 18 rs35935435 APOE2dose  7568  0.5444 0.4525  0.6551  1.197e-10
-## 19 rs16840892       ADD  7397  0.7460 0.5031  1.1060  1.448e-01
-## 20 rs16840892        RS  7397  0.3616 0.3119  0.4192  1.758e-41
-## 21 rs16840892       AUT  7397  9.1190 7.5130 11.0700 8.868e-111
-## 22 rs16840892     NCRAD  7397  3.4770 2.8460  4.2480  3.412e-34
-## 23 rs16840892        NW  7397  0.8197 0.6832  0.9833  3.229e-02
-## 24 rs16840892       SEX  7397  1.3820 1.2280  1.5560  8.335e-08
-## 25 rs16840892       Age  7397  0.9905 0.9820  0.9992  3.154e-02
-## 26 rs16840892 APOE4dose  7397  4.5670 4.1050  5.0810 1.371e-171
-## 27 rs16840892 APOE2dose  7397  0.5614 0.4670  0.6748  7.852e-10
-## 28  rs6816604       ADD  7608  0.8321 0.6980  0.9920  4.039e-02
-## 29  rs6816604        RS  7608  0.3624 0.3136  0.4188  4.578e-43
-## 30  rs6816604       AUT  7608  8.6420 7.1400 10.4600 1.142e-108
-## 31  rs6816604     NCRAD  7608  3.6230 2.9670  4.4220  1.158e-36
-## 32  rs6816604        NW  7608  0.8095 0.6754  0.9702  2.220e-02
-## 33  rs6816604       SEX  7608  1.4090 1.2540  1.5830  8.630e-09
-## 34  rs6816604       Age  7608  0.9915 0.9831  1.0000  5.182e-02
-## 35  rs6816604 APOE4dose  7608  4.5210 4.0710  5.0210 1.176e-174
-## 36  rs6816604 APOE2dose  7608  0.5558 0.4632  0.6668  2.625e-10</code></pre>
-<pre class="r"><code>x &lt;- filter(x, TEST==&quot;ADD&quot;)
-print.data.frame(x)</code></pre>
-<pre><code>##          SNP TEST NMISS     OR    L95    U95       P
-## 1 rs34058821  ADD  7065 0.8257 0.6849 0.9954 0.04456
-## 2 rs35935435  ADD  7568 1.1590 0.8507 1.5790 0.34990
-## 3 rs16840892  ADD  7397 0.7460 0.5031 1.1060 0.14480
-## 4  rs6816604  ADD  7608 0.8321 0.6980 0.9920 0.04039</code></pre>
-<pre class="r"><code>#system(&quot;plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --out SORCS2haplogAllCov&quot;)
-#system(&quot;plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --hap-omnibus --out SORCS2haplogAllCovOmni&quot;)
-#system(&quot;plink --lfile SORCS2 --logistic --ci 0.95 --covar SORCS2cov.txt --covar-name APOE4dose,APOE2dose --out SORCS2logAPOECov&quot;)
-list.files()</code></pre>
-<pre><code>##  [1] &quot;ADSP.fam&quot;                                 
-##  [2] &quot;ADSP.fam_SGY.txt&quot;                         
-##  [3] &quot;ADSP.lgen&quot;                                
-##  [4] &quot;ADSP.map&quot;                                 
-##  [5] &quot;ADSP_sample_sex_age_AD_APOE.txt&quot;          
-##  [6] &quot;ADSPassoc.assoc&quot;                          
-##  [7] &quot;ADSPassoc.log&quot;                            
-##  [8] &quot;ADSPcov.txt&quot;                              
-##  [9] &quot;ADSPlogAllCov.assoc.logistic&quot;             
-## [10] &quot;ADSPlogAllCov.log&quot;                        
-## [11] &quot;Gene Map SNP SorCS2.pptx&quot;                 
-## [12] &quot;generate_flat_file_SG.pl&quot;                 
-## [13] &quot;SORCS2.fam&quot;                               
-## [14] &quot;SORCS2.lgen&quot;                              
-## [15] &quot;SORCS2.map&quot;                               
-## [16] &quot;SORCS2_1.map&quot;                             
-## [17] &quot;SORCS2_allele_counts.txt&quot;                 
-## [18] &quot;SORCS2_ff.txt&quot;                            
-## [19] &quot;SORCS2_flat_file.txt&quot;                     
-## [20] &quot;SORCS2_Genetics.html&quot;                     
-## [21] &quot;SORCS2_Genetics.Rmd&quot;                      
-## [22] &quot;SORCS2_test.map&quot;                          
-## [23] &quot;SORCS2_v2_Genetics.html&quot;                  
-## [24] &quot;SORCS2_v2_Genetics.Rmd&quot;                   
-## [25] &quot;SORCS2_variants.txt&quot;                      
-## [26] &quot;SORCS2_Ydb.csv&quot;                           
-## [27] &quot;SORCS2_YdB.map&quot;                           
-## [28] &quot;SORCS2_YdB_map&quot;                           
-## [29] &quot;SORCS2assoc.assoc&quot;                        
-## [30] &quot;SORCS2assoc.log&quot;                          
-## [31] &quot;SORCS2cov.txt&quot;                            
-## [32] &quot;SORCS2haplogAllCov.assoc.hap.logistic&quot;    
-## [33] &quot;SORCS2haplogAllCov.log&quot;                   
-## [34] &quot;SORCS2haplogAllCovOmni.assoc.hap.logistic&quot;
-## [35] &quot;SORCS2haplogAllCovOmni.log&quot;               
-## [36] &quot;SORCS2logAllCov.assoc.logistic&quot;           
-## [37] &quot;SORCS2logAllCov.log&quot;                      
-## [38] &quot;SORCS2logAPOECov.assoc.logistic&quot;          
-## [39] &quot;SORCS2logAPOECov.log&quot;                     
-## [40] &quot;SORCS2logAssoc.assoc&quot;                     
-## [41] &quot;SORCS2logAssoc.log&quot;                       
-## [42] &quot;t1.fam&quot;                                   
-## [43] &quot;t1.lgen&quot;                                  
-## [44] &quot;t1.map&quot;                                   
-## [45] &quot;t1.txt&quot;                                   
-## [46] &quot;t1assoc.assoc&quot;                            
-## [47] &quot;t1assoc.log&quot;                              
-## [48] &quot;t1logAllCov.assoc.logistic&quot;               
-## [49] &quot;t1logAllCov.log&quot;                          
-## [50] &quot;testing.fam&quot;                              
-## [51] &quot;testing.lgen&quot;                             
-## [52] &quot;testing.map&quot;                              
-## [53] &quot;testing.txt&quot;</code></pre>
 </div>
+<div id="analyze-sorcs2-dataset-from-ydb" class="section level4">
+<h4>Analyze SORCS2 dataset from Ydb</h4>
+<pre class="r"><code>ydb2plink(input=&quot;SORCS2_Ydb.csv&quot;, output=&quot;SORCS2_YdB&quot;)</code></pre>
+<pre><code>##  CHR        SNP      BP FREQ_AD FREQ_CON OR_assoc P_assoc
+##    4 rs34058821 7666160   0.047    0.060     0.78 0.00093
+##    4 rs35935435 7666180   0.020    0.016     1.21 0.12150
+##    4 rs16840892 7716061   0.010    0.012     0.89 0.45360
+##    4  rs6816604 7716932   0.055    0.057     0.97 0.71800
+##  CHR        SNP      BP FREQ_AD FREQ_CON NMISS OR_logis  L95  U95 P_logis
+##    4 rs34058821 7666160   0.047    0.060  7065     0.83 0.68 1.00   0.045
+##    4 rs35935435 7666180   0.020    0.016  7568     1.16 0.85 1.58   0.350
+##    4 rs16840892 7716061   0.010    0.012  7397     0.75 0.50 1.11   0.145
+##    4  rs6816604 7716932   0.055    0.057  7608     0.83 0.70 0.99   0.040</code></pre>
+<pre class="r"><code>#print(assoc)</code></pre>
+<pre><code>    #PLINK --assoc: analyzes standard case/control (allelic) association with LOAD, no covariates</code></pre>
+</div>
+</div>
+</div>
+<div id="systemplink-lfile-output-assoc-ci-0.95-out-output" class="section level1">
+<h1>system(“plink –lfile output –assoc –ci 0.95 –out output”)</h1>
+</div>
+<div id="t1assoc---read.tablepasteoutput-sep-.assoc-header-t" class="section level1">
+<h1>t1assoc &lt;- read.table(paste(output, sep=“”, “.assoc”), header = T)</h1>
+</div>
+<div id="strsorcs2assocheadsorcs2assoctailsorcs2assoc" class="section level1">
+<h1>str(SORCS2assoc);head(SORCS2assoc);tail(SORCS2assoc)</h1>
+</div>
+<div id="ydb2plink" class="section level1">
+<h1>ydb2plink()</h1>
+<pre><code>    #PLINK --logistic: analyzes association by logistic regression using an additive model with all covariates</code></pre>
+</div>
+<div id="systemplink-lfile-output-logistic-ci-0.95-covar-out3-covar-name-rsautncradnwsexageapoe4doseapoe2dose-out-output" class="section level1">
+<h1>system(“plink –lfile output –logistic –ci 0.95 –covar out3 –covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose –out output”)</h1>
+</div>
+<div id="t2logistic---read.tablepasteoutput-sep-.assoc.logisitc-header-t" class="section level1">
+<h1>t2logistic &lt;- read.table(paste(output, sep=“”, “.assoc.logisitc”, header = T)</h1>
+</div>
+<div id="strsorcs2logallheadsorcs2logalltailsorcs2logall" class="section level1">
+<h1>str(SORCS2logAll);head(SORCS2logAll);tail(SORCS2logAll)</h1>
+</div>
+<div id="x---select-sorcs2logall-snptestnmiss-or-l95-u95-p" class="section level1">
+<h1>x &lt;- select (SORCS2logAll, SNP,TEST,NMISS, OR, L95, U95, P)</h1>
+</div>
+<div id="print.data.framex" class="section level1">
+<h1>print.data.frame(x)</h1>
+</div>
+<div id="x---filterx-testadd" class="section level1">
+<h1>x &lt;- filter(x, TEST==“ADD”)</h1>
+</div>
+<div id="print.data.framex-1" class="section level1">
+<h1>print.data.frame(x)</h1>
+</div>
+<div id="systemplink-lfile-sorcs2-hap-window-4-hap-logistic-ci-0.95-covar-sorcs2cov.txt-covar-name-rs-apoe2dose-mhf-0.005-out-sorcs2haplogallcov" class="section level1">
+<h1>system(“plink –lfile SORCS2 –hap-window 4 –hap-logistic –ci 0.95 –covar SORCS2cov.txt –covar-name RS-APOE2dose –mhf 0.005 –out SORCS2haplogAllCov”)</h1>
+</div>
+<div id="systemplink-lfile-sorcs2-hap-window-4-hap-logistic-ci-0.95-covar-sorcs2cov.txt-covar-name-rs-apoe2dose-mhf-0.005-hap-omnibus-out-sorcs2haplogallcovomni" class="section level1">
+<h1>system(“plink –lfile SORCS2 –hap-window 4 –hap-logistic –ci 0.95 –covar SORCS2cov.txt –covar-name RS-APOE2dose –mhf 0.005 –hap-omnibus –out SORCS2haplogAllCovOmni”)</h1>
+</div>
+<div id="systemplink-lfile-sorcs2-logistic-ci-0.95-covar-sorcs2cov.txt-covar-name-apoe4doseapoe2dose-out-sorcs2logapoecov" class="section level1">
+<h1>system(“plink –lfile SORCS2 –logistic –ci 0.95 –covar SORCS2cov.txt –covar-name APOE4dose,APOE2dose –out SORCS2logAPOECov”)</h1>
+</div>
+<div id="list.files" class="section level1">
+<h1>list.files()</h1>
+<p>```</p>
 <div id="read-in-and-analyze-adsp-sorcs2-dataset" class="section level4">
 <h4>Read in and Analyze ADSP SORCS2 dataset</h4>
 <p>The data we have on the 4 common SORCS2 missense variants in our ADSP dataset was captured by Joseph Reddy in a flatfile (SORCS2_ff.txt) as described in his section below. I read in the dataset (SORCS2_ff.txt) from the SORSC2 repo.The following function reads the data in, creates PLINK, files and then analyzes them in PLINK as for the SORCS2 dataset from the Younkin database.</p>
@@ -549,63 +341,8 @@ write.table(lgen,out4,sep='\t',quote=FALSE,row.names=F,col.names=F)
 #SORCS2lgen_1=read.table(&quot;SORCS2_1.lgen&quot;, header = F)
 #str(SORCS2lgen_1);head(SORCS2lgen_1);tail(SORCS2lgen_1)
 }
-ADSP2plink(,out1=&quot;ADSP.map&quot;, out2=&quot;ADSP.fam&quot;, out3=&quot;ADSPcov.txt&quot;, out4=&quot;ADSP.lgen&quot;)</code></pre>
-<pre><code>## 'data.frame':    25000 obs. of  16 variables:
-##  $ Subject_ID  : chr  &quot;SRR1198015&quot; &quot;SRR1198016&quot; &quot;SRR1267825&quot; &quot;SRR1267826&quot; ...
-##  $ Series      : chr  &quot;ADSP&quot; &quot;ADSP&quot; &quot;ADSP&quot; &quot;ADSP&quot; ...
-##  $ Sex         : int  0 0 1 0 0 0 1 1 1 1 ...
-##  $ Age         : num  64 71 85 87.3 82.2 ...
-##  $ Case.control: int  2 2 1 1 1 1 1 1 0 0 ...
-##  $ APOE        : int  34 34 23 33 33 33 34 33 33 33 ...
-##  $ Gene        : chr  &quot;SORCS2&quot; &quot;SORCS2&quot; &quot;SORCS2&quot; &quot;SORCS2&quot; ...
-##  $ SNP_ID      : chr  &quot;rs527549780&quot; &quot;rs527549780&quot; &quot;rs527549780&quot; &quot;rs527549780&quot; ...
-##  $ CHR         : chr  &quot;chr4&quot; &quot;chr4&quot; &quot;chr4&quot; &quot;chr4&quot; ...
-##  $ Position    : int  7640109 7640109 7640109 7640109 7640109 7640109 7640109 7640109 7640109 7640109 ...
-##  $ Ref         : chr  &quot;G&quot; &quot;G&quot; &quot;G&quot; &quot;G&quot; ...
-##  $ Alt         : chr  &quot;A&quot; &quot;A&quot; &quot;A&quot; &quot;A&quot; ...
-##  $ Codon       : chr  &quot;Gca/Aca&quot; &quot;Gca/Aca&quot; &quot;Gca/Aca&quot; &quot;Gca/Aca&quot; ...
-##  $ AA          : chr  &quot;A235T&quot; &quot;A235T&quot; &quot;A235T&quot; &quot;A235T&quot; ...
-##  $ Call        : int  11 11 11 11 11 11 11 11 11 11 ...
-##  $ Genotype    : chr  &quot;0/0&quot; &quot;0/0&quot; &quot;0/0&quot; &quot;0/0&quot; ...
-## 'data.frame':    23838 obs. of  16 variables:
-##  $ Subject_ID  : chr  &quot;SRR1198016&quot; &quot;SRR1267825&quot; &quot;SRR1267826&quot; &quot;SRR1267827&quot; ...
-##  $ Series      : chr  &quot;ADSP&quot; &quot;ADSP&quot; &quot;ADSP&quot; &quot;ADSP&quot; ...
-##  $ Sex         : int  0 1 0 0 0 1 1 1 1 0 ...
-##  $ Age         : num  71 85 87.3 82.2 90.8 ...
-##  $ Case.control: int  2 1 1 1 1 1 1 0 0 0 ...
-##  $ APOE        : int  34 23 33 33 33 34 33 33 33 33 ...
-##  $ Gene        : chr  &quot;SORCS2&quot; &quot;SORCS2&quot; &quot;SORCS2&quot; &quot;SORCS2&quot; ...
-##  $ SNP_ID      : chr  &quot;rs527549780&quot; &quot;rs527549780&quot; &quot;rs527549780&quot; &quot;rs527549780&quot; ...
-##  $ CHR         : chr  &quot;chr4&quot; &quot;chr4&quot; &quot;chr4&quot; &quot;chr4&quot; ...
-##  $ Position    : int  7640109 7640109 7640109 7640109 7640109 7640109 7640109 7640109 7640109 7640109 ...
-##  $ Ref         : chr  &quot;G&quot; &quot;G&quot; &quot;G&quot; &quot;G&quot; ...
-##  $ Alt         : chr  &quot;A&quot; &quot;A&quot; &quot;A&quot; &quot;A&quot; ...
-##  $ Codon       : chr  &quot;Gca/Aca&quot; &quot;Gca/Aca&quot; &quot;Gca/Aca&quot; &quot;Gca/Aca&quot; ...
-##  $ AA          : chr  &quot;A235T&quot; &quot;A235T&quot; &quot;A235T&quot; &quot;A235T&quot; ...
-##  $ Call        : int  11 11 11 11 11 11 11 11 11 11 ...
-##  $ Genotype    : chr  &quot;0/0&quot; &quot;0/0&quot; &quot;0/0&quot; &quot;0/0&quot; ...
-## 'data.frame':    954 obs. of  6 variables:
-##  $ FID: num  0 0 0 0 0 0 0 0 0 0 ...
-##  $ IID: chr  &quot;SRR1198016&quot; &quot;SRR1267825&quot; &quot;SRR1267826&quot; &quot;SRR1267827&quot; ...
-##  $ PID: num  0 0 0 0 0 0 0 0 0 0 ...
-##  $ MID: num  0 0 0 0 0 0 0 0 0 0 ...
-##  $ SEX: num  1 2 1 1 1 2 2 2 2 1 ...
-##  $ AFF: num  2 2 2 2 2 2 2 1 1 1 ...
-## 'data.frame':    954 obs. of  7 variables:
-##  $ FID      : num  0 0 0 0 0 0 0 0 0 0 ...
-##  $ IID      : chr  &quot;SRR1198016&quot; &quot;SRR1267825&quot; &quot;SRR1267826&quot; &quot;SRR1267827&quot; ...
-##  $ ADSP     : num  1 1 1 1 1 1 1 1 1 1 ...
-##  $ SEX      : num  1 2 1 1 1 2 2 2 2 1 ...
-##  $ Age      : num  71 85 87.3 82.2 90.8 ...
-##  $ APOE4dose: num  1 0 0 0 0 1 0 0 0 0 ...
-##  $ APOE2dose: num  0 1 0 0 0 0 0 0 0 0 ...
-## 'data.frame':    23838 obs. of  5 variables:
-##  $ FID   : num  0 0 0 0 0 0 0 0 0 0 ...
-##  $ IID   : chr  &quot;SRR1198016&quot; &quot;SRR1267825&quot; &quot;SRR1267826&quot; &quot;SRR1267827&quot; ...
-##  $ SNP_ID: chr  &quot;rs527549780&quot; &quot;rs527549780&quot; &quot;rs527549780&quot; &quot;rs527549780&quot; ...
-##  $ A1    : num  1 1 1 1 1 1 1 1 1 1 ...
-##  $ A2    : num  1 1 1 1 1 1 1 1 1 1 ...</code></pre>
-<pre class="r"><code>list.files()</code></pre>
+#ADSP2plink(,out1=&quot;ADSP.map&quot;, out2=&quot;ADSP.fam&quot;, out3=&quot;ADSPcov.txt&quot;, out4=&quot;ADSP.lgen&quot;)
+list.files()</code></pre>
 <pre><code>##  [1] &quot;ADSP.fam&quot;                                 
 ##  [2] &quot;ADSP.fam_SGY.txt&quot;                         
 ##  [3] &quot;ADSP.lgen&quot;                                
@@ -618,120 +355,92 @@ ADSP2plink(,out1=&quot;ADSP.map&quot;, out2=&quot;ADSP.fam&quot;, out3=&quot;ADS
 ## [10] &quot;ADSPlogAllCov.log&quot;                        
 ## [11] &quot;Gene Map SNP SorCS2.pptx&quot;                 
 ## [12] &quot;generate_flat_file_SG.pl&quot;                 
-## [13] &quot;SORCS2.fam&quot;                               
-## [14] &quot;SORCS2.lgen&quot;                              
-## [15] &quot;SORCS2.map&quot;                               
-## [16] &quot;SORCS2_1.map&quot;                             
-## [17] &quot;SORCS2_allele_counts.txt&quot;                 
-## [18] &quot;SORCS2_ff.txt&quot;                            
-## [19] &quot;SORCS2_flat_file.txt&quot;                     
-## [20] &quot;SORCS2_Genetics.html&quot;                     
-## [21] &quot;SORCS2_Genetics.Rmd&quot;                      
-## [22] &quot;SORCS2_test.map&quot;                          
-## [23] &quot;SORCS2_v2_Genetics.html&quot;                  
-## [24] &quot;SORCS2_v2_Genetics.Rmd&quot;                   
-## [25] &quot;SORCS2_variants.txt&quot;                      
-## [26] &quot;SORCS2_Ydb.csv&quot;                           
-## [27] &quot;SORCS2_YdB.map&quot;                           
-## [28] &quot;SORCS2_YdB_map&quot;                           
-## [29] &quot;SORCS2assoc.assoc&quot;                        
-## [30] &quot;SORCS2assoc.log&quot;                          
-## [31] &quot;SORCS2cov.txt&quot;                            
-## [32] &quot;SORCS2haplogAllCov.assoc.hap.logistic&quot;    
-## [33] &quot;SORCS2haplogAllCov.log&quot;                   
-## [34] &quot;SORCS2haplogAllCovOmni.assoc.hap.logistic&quot;
-## [35] &quot;SORCS2haplogAllCovOmni.log&quot;               
-## [36] &quot;SORCS2logAllCov.assoc.logistic&quot;           
-## [37] &quot;SORCS2logAllCov.log&quot;                      
-## [38] &quot;SORCS2logAPOECov.assoc.logistic&quot;          
-## [39] &quot;SORCS2logAPOECov.log&quot;                     
-## [40] &quot;SORCS2logAssoc.assoc&quot;                     
-## [41] &quot;SORCS2logAssoc.log&quot;                       
-## [42] &quot;t1.fam&quot;                                   
-## [43] &quot;t1.lgen&quot;                                  
-## [44] &quot;t1.map&quot;                                   
-## [45] &quot;t1.txt&quot;                                   
-## [46] &quot;t1assoc.assoc&quot;                            
-## [47] &quot;t1assoc.log&quot;                              
-## [48] &quot;t1logAllCov.assoc.logistic&quot;               
-## [49] &quot;t1logAllCov.log&quot;                          
-## [50] &quot;testing.fam&quot;                              
-## [51] &quot;testing.lgen&quot;                             
-## [52] &quot;testing.map&quot;                              
-## [53] &quot;testing.txt&quot;</code></pre>
+## [13] &quot;output.log&quot;                               
+## [14] &quot;plink.log&quot;                                
+## [15] &quot;SORCS2.CM.assoc&quot;                          
+## [16] &quot;SORCS2.CM.assoc.logistic&quot;                 
+## [17] &quot;SORCS2.CM.fam&quot;                            
+## [18] &quot;SORCS2.CM.lgen&quot;                           
+## [19] &quot;SORCS2.CM.log&quot;                            
+## [20] &quot;SORCS2.CM.map&quot;                            
+## [21] &quot;SORCS2.CM.plink.csv&quot;                      
+## [22] &quot;SORCS2.CM_cov.txt&quot;                        
+## [23] &quot;SORCS2.fam&quot;                               
+## [24] &quot;SORCS2.lgen&quot;                              
+## [25] &quot;SORCS2.map&quot;                               
+## [26] &quot;SORCS2_1.map&quot;                             
+## [27] &quot;SORCS2_allele_counts.txt&quot;                 
+## [28] &quot;SORCS2_CM.assoc&quot;                          
+## [29] &quot;SORCS2_CM.assoc.logistic&quot;                 
+## [30] &quot;SORCS2_CM.csv&quot;                            
+## [31] &quot;SORCS2_CM.fam&quot;                            
+## [32] &quot;SORCS2_CM.lgen&quot;                           
+## [33] &quot;SORCS2_CM.log&quot;                            
+## [34] &quot;SORCS2_CM.map&quot;                            
+## [35] &quot;SORCS2_CM.nof&quot;                            
+## [36] &quot;SORCS2_CM.plink.csv&quot;                      
+## [37] &quot;SORCS2_CM_cov.txt&quot;                        
+## [38] &quot;SORCS2_ff.txt&quot;                            
+## [39] &quot;SORCS2_flat_file.txt&quot;                     
+## [40] &quot;SORCS2_Genetics.html&quot;                     
+## [41] &quot;SORCS2_Genetics.Rmd&quot;                      
+## [42] &quot;SORCS2_test.map&quot;                          
+## [43] &quot;SORCS2_v2_Genetics.html&quot;                  
+## [44] &quot;SORCS2_v2_Genetics.Rmd&quot;                   
+## [45] &quot;SORCS2_variants.txt&quot;                      
+## [46] &quot;SORCS2_Ydb.assoc&quot;                         
+## [47] &quot;SORCS2_Ydb.assoc.logistic&quot;                
+## [48] &quot;SORCS2_Ydb.csv&quot;                           
+## [49] &quot;SORCS2_Ydb.fam&quot;                           
+## [50] &quot;SORCS2_Ydb.lgen&quot;                          
+## [51] &quot;SORCS2_Ydb.log&quot;                           
+## [52] &quot;SORCS2_YdB.map&quot;                           
+## [53] &quot;SORCS2_Ydb.plink.csv&quot;                     
+## [54] &quot;SORCS2_Ydb_cov.txt&quot;                       
+## [55] &quot;SORCS2_YdB_map&quot;                           
+## [56] &quot;SORCS2_Ydb_plink.csv&quot;                     
+## [57] &quot;SORCS2_Ydbplink.csv&quot;                      
+## [58] &quot;SORCS2assoc.assoc&quot;                        
+## [59] &quot;SORCS2assoc.log&quot;                          
+## [60] &quot;SORCS2cov.txt&quot;                            
+## [61] &quot;SORCS2haplogAllCov.assoc.hap.logistic&quot;    
+## [62] &quot;SORCS2haplogAllCov.log&quot;                   
+## [63] &quot;SORCS2haplogAllCovOmni.assoc.hap.logistic&quot;
+## [64] &quot;SORCS2haplogAllCovOmni.log&quot;               
+## [65] &quot;SORCS2logAllCov.assoc.logistic&quot;           
+## [66] &quot;SORCS2logAllCov.log&quot;                      
+## [67] &quot;SORCS2logAPOECov.assoc.logistic&quot;          
+## [68] &quot;SORCS2logAPOECov.log&quot;                     
+## [69] &quot;SORCS2logAssoc.assoc&quot;                     
+## [70] &quot;SORCS2logAssoc.log&quot;                       
+## [71] &quot;t1.fam&quot;                                   
+## [72] &quot;t1.lgen&quot;                                  
+## [73] &quot;t1.map&quot;                                   
+## [74] &quot;t1.txt&quot;                                   
+## [75] &quot;t1assoc.assoc&quot;                            
+## [76] &quot;t1assoc.log&quot;                              
+## [77] &quot;t1logAllCov.assoc.logistic&quot;               
+## [78] &quot;t1logAllCov.log&quot;                          
+## [79] &quot;test.csv&quot;                                 
+## [80] &quot;test.lgen&quot;                                
+## [81] &quot;test.txt&quot;                                 
+## [82] &quot;testing.fam&quot;                              
+## [83] &quot;testing.lgen&quot;                             
+## [84] &quot;testing.map&quot;                              
+## [85] &quot;testing.txt&quot;</code></pre>
 <pre class="r"><code>        #PLINK --assoc: analyzes standard case/control (allelic) association with LOAD, no covariates
-system(&quot;plink --lfile ADSP --assoc  --out ADSPassoc&quot;)
-ADSPassoc &lt;- read.table(&quot;ADSPassoc.assoc&quot;, header = T)
-str(ADSPassoc);head(ADSPassoc);tail(ADSPassoc)</code></pre>
-<pre><code>## 'data.frame':    4 obs. of  10 variables:
-##  $ CHR  : int  4 4 4 4
-##  $ SNP  : Factor w/ 4 levels &quot;rs16840892&quot;,&quot;rs34058821&quot;,..: 2 3 1 4
-##  $ BP   : int  7666160 7666180 7716061 7716932
-##  $ A1   : int  2 2 2 2
-##  $ F_A  : num  0.04295 0.02753 0.00991 0.06718
-##  $ F_U  : num  0.045 0.026 0.009 0.053
-##  $ A2   : int  1 1 1 1
-##  $ CHISQ: num  0.0474 0.043 0.0423 1.703
-##  $ P    : num  0.828 0.836 0.837 0.192
-##  $ OR   : num  0.952 1.061 1.102 1.287</code></pre>
-<pre><code>##   CHR        SNP      BP A1      F_A   F_U A2   CHISQ      P     OR
-## 1   4 rs34058821 7666160  2 0.042950 0.045  1 0.04745 0.8276 0.9524
-## 2   4 rs35935435 7666180  2 0.027530 0.026  1 0.04299 0.8357 1.0610
-## 3   4 rs16840892 7716061  2 0.009912 0.009  1 0.04235 0.8370 1.1020
-## 4   4  rs6816604 7716932  2 0.067180 0.053  1 1.70300 0.1918 1.2870</code></pre>
-<pre><code>##   CHR        SNP      BP A1      F_A   F_U A2   CHISQ      P     OR
-## 1   4 rs34058821 7666160  2 0.042950 0.045  1 0.04745 0.8276 0.9524
-## 2   4 rs35935435 7666180  2 0.027530 0.026  1 0.04299 0.8357 1.0610
-## 3   4 rs16840892 7716061  2 0.009912 0.009  1 0.04235 0.8370 1.1020
-## 4   4  rs6816604 7716932  2 0.067180 0.053  1 1.70300 0.1918 1.2870</code></pre>
-<pre class="r"><code>        #PLINK --assoc: analyzes association by logistic regression using an additive model with with covariates
-system(&quot;plink --lfile ADSP --logistic --ci 0.95 --covar ADSPcov.txt --covar-name SEX,APOE4dose,APOE2dose --out ADSPlogAllCov&quot;)
-y &lt;- read.table(&quot;ADSPlogAllCov.assoc.logistic&quot;, header=T)
-print.data.frame(y)</code></pre>
-<pre><code>##    CHR        SNP      BP A1      TEST NMISS     OR     SE    L95    U95
-## 1    4 rs34058821 7666160  2       ADD   954 0.9086 0.2312 0.5776 1.4290
-## 2    4 rs34058821 7666160  2       SEX   954 1.1090 0.1358 0.8498 1.4470
-## 3    4 rs34058821 7666160  2 APOE4dose   954 2.7730 0.1575 2.0360 3.7760
-## 4    4 rs34058821 7666160  2 APOE2dose   954 0.5965 0.1848 0.4153 0.8569
-## 5    4 rs35935435 7666180  2       ADD   954 1.0500 0.2952 0.5889 1.8730
-## 6    4 rs35935435 7666180  2       SEX   954 1.1070 0.1357 0.8485 1.4450
-## 7    4 rs35935435 7666180  2 APOE4dose   954 2.7750 0.1576 2.0380 3.7790
-## 8    4 rs35935435 7666180  2 APOE2dose   954 0.5996 0.1847 0.4175 0.8612
-## 9    4 rs16840892 7716061  2       ADD   954 1.0660 0.4912 0.4072 2.7930
-## 10   4 rs16840892 7716061  2       SEX   954 1.1070 0.1357 0.8484 1.4440
-## 11   4 rs16840892 7716061  2 APOE4dose   954 2.7720 0.1576 2.0350 3.7750
-## 12   4 rs16840892 7716061  2 APOE2dose   954 0.5983 0.1847 0.4166 0.8592
-## 13   4  rs6816604 7716932  2       ADD   954 1.2620 0.2022 0.8487 1.8750
-## 14   4  rs6816604 7716932  2       SEX   954 1.1170 0.1360 0.8557 1.4590
-## 15   4  rs6816604 7716932  2 APOE4dose   954 2.7540 0.1577 2.0220 3.7510
-## 16   4  rs6816604 7716932  2 APOE2dose   954 0.5957 0.1846 0.4149 0.8554
-##       STAT         P
-## 1  -0.4144 6.786e-01
-## 2   0.7618 4.462e-01
-## 3   6.4740 9.518e-11
-## 4  -2.7960 5.171e-03
-## 5   0.1662 8.680e-01
-## 6   0.7499 4.533e-01
-## 7   6.4780 9.307e-11
-## 8  -2.7690 5.624e-03
-## 9   0.1309 8.958e-01
-## 10  0.7492 4.537e-01
-## 11  6.4690 9.842e-11
-## 12 -2.7820 5.402e-03
-## 13  1.1490 2.506e-01
-## 14  0.8147 4.152e-01
-## 15  6.4240 1.326e-10
-## 16 -2.8060 5.013e-03</code></pre>
-<pre class="r"><code>print.data.frame(x)</code></pre>
-<pre><code>##          SNP TEST NMISS     OR    L95    U95       P
-## 1 rs34058821  ADD  7065 0.8257 0.6849 0.9954 0.04456
-## 2 rs35935435  ADD  7568 1.1590 0.8507 1.5790 0.34990
-## 3 rs16840892  ADD  7397 0.7460 0.5031 1.1060 0.14480
-## 4  rs6816604  ADD  7608 0.8321 0.6980 0.9920 0.04039</code></pre>
-<pre class="r"><code>#a&lt;- read.table(&quot;ADSPcov.txt&quot;, header=T)
+#system(&quot;plink --lfile ADSP --assoc  --out ADSPassoc&quot;)
+#ADSPassoc &lt;- read.table(&quot;ADSPassoc.assoc&quot;, header = T)
+#str(ADSPassoc);head(ADSPassoc);tail(ADSPassoc)
+
+        #PLINK --assoc: analyzes association by logistic regression using an additive model with with covariates
+#system(&quot;plink --lfile ADSP --logistic --ci 0.95 --covar ADSPcov.txt --covar-name SEX,APOE4dose,APOE2dose --out ADSPlogAllCov&quot;)
+#y &lt;- read.table(&quot;ADSPlogAllCov.assoc.logistic&quot;, header=T)
+#print.data.frame(y)
+#print.data.frame(x)
+#a&lt;- read.table(&quot;ADSPcov.txt&quot;, header=T)
 #print.data.frame(a)</code></pre>
 <p>print.data.frame(x) print.data.frame(y) ``` #system(“plink –lfile SORCS2 –hap-window 4 –hap-logistic –ci 0.95 –covar SORCS2cov.txt –covar-name RS-APOE2dose –mhf 0.005 –out SORCS2haplogAllCov”) #system(“plink –lfile SORCS2 –hap-window 4 –hap-logistic –ci 0.95 –covar SORCS2cov.txt –covar-name RS-APOE2dose –mhf 0.005 –hap-omnibus –out #SORCS2haplogAllCovOmni”) system(“plink –lfile SORCS2 –logistic –ci 0.95 –covar SORCS2cov.txt –covar-name APOE4dose,APOE2dose –out SORCS2logAPOECov”) list.files()</p>
-</div>
 </div>
 <div id="ben-and-leonies-content" class="section level3">
 <h3>Ben and Leonie’s Content</h3>
@@ -832,6 +541,7 @@ head(SORCS2_variants)</code></pre>
 ## 4           26            0           0     473      27       0      0
 ## 5            0            0           0     499       1       0      0
 ## 6            1            0           0     500       0       0      0</code></pre>
+<p>y</p>
 </div>
 </div>
 
