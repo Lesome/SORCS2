@@ -14,7 +14,7 @@ Recent cached web-check found... OK, v1.07 is current
 +++ PLINK 1.9 is now available! See above website for details +++ 
 
 Writing this text to log file [ SORCS2.CM.log ]
-Analysis started: Tue Nov 10 16:53:34 2015
+Analysis started: Wed Nov 11 10:55:44 2015
 
 Options in effect:
 	--lfile SORCS2.CM
@@ -47,5 +47,5 @@ After filtering, 3737 males, 5111 females, and 0 of unspecified sex
 Converting data to Individual-major format
 Writing logistic model association results to [ SORCS2.CM.assoc.logistic ] 
 
-Analysis finished: Tue Nov 10 16:53:35 2015
+Analysis finished: Wed Nov 11 10:55:44 2015
 
