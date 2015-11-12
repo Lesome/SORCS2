@@ -63,7 +63,7 @@ This is just some text to read in.This is just some text to read in.This is just
 
 On 10/27/14, I sent an email to Anders to which was attached a flat file with our initial Ydb SORCS2 data and some analyses performed by Chris Medway. This flat file, now named SORCS2_CM.csv, was copied into our SORSC2 repo.
 
-```{r, echo=FALSE}
+```{r}
 
                 #Create function to read in dataset from Chris Medway (10/27/14)
                 #make PLINK files (map, fam, cov.txt, and lgen) and analyze them.
@@ -201,16 +201,25 @@ write.table(lgen,out4,sep='\t',quote=FALSE,row.names=F,col.names=F)
 #str(SORCS2lgen)
 
 assoc <- paste("plink",sep=" ","--lfile", output, "--assoc", "--ci 0.95", "--out", output)
-logistic <- paste("plink",sep=" ","--lfile", output, "--logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--out", output)
+logistic <- paste("plink",sep=" ","--lfile", output, "--logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--mhf 0.005 --out", output)
+haplog <- paste("plink",sep=" ","--lfile", output, "--hap-window 4 --hap-logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--mhf 0.005 --out", output)
+
+
 assocfile <- paste(output,sep="",".assoc")
 logisfile <- paste(output,sep="",".assoc.logistic")
+haplogfile <- paste(output,sep="",".assoc.hap.logistic")
+
 system(assoc)
 system(logistic)
+system(haplog)
+
 f1 <- read.table(assocfile, header=T)
 #print(f1)
 f1 <- f1 %>% select(CHR,SNP,BP,F_A, F_U, OR, P) %>% rename(FREQ_AD=F_A, FREQ_CON=F_U, OR_assoc=OR, P_assoc=P)
 print(f1,digits=2,row.names=F)
+print("", quote=F)
 #head(f1)
+
 f1 <- f1 %>% select(CHR,SNP,BP,FREQ_AD,FREQ_CON)
 f2 <- read.table(logisfile, header=T)
 #print(f2)
@@ -218,15 +227,26 @@ f2 <- f2 %>% filter (TEST=="ADD") %>% select (SNP,NMISS,OR,L95,U95,P) %>% rename
 #head(f2)
 f3<- left_join(f1,f2,by="SNP")
 print(f3,digits=2,row.names=F)
+print("", quote=F)
 write.table(f3,out5,sep=",", quote=FALSE,row.names=F,col.names=T)
+
+f4 <- read.table(haplogfile, header=T)
+f4 <- f4 %>% select(-NSNP,-NHAP,-STAT) %>% arrange(desc(HAPLOTYPE))
+print(f4,digits=2, row.names=F)
+print("", quote=F)
+
+hapomni <- paste("plink",sep=" ","--lfile", output, "--hap-window 4 --hap-logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--mhf 0.005 --hap-omnibus --out", output)
+system(hapomni)
+f4 <- read.table(haplogfile, header=T)
+f4 <- f4 %>% rename(Pomni=P)
+print(f4,digits=2, row.names=F)
+print("", quote=F)
+
 #print("PLINK commands:");print(assoc);print(logistic)
 }
 
 ```
-####Analyze SORCS2 dataset from Chris Medway
-```{r}
-cm2plink(input="SORCS2_CM.csv", output="SORCS2_CM")
-```
+
 
 ####Function to read in and analyze Ydb SORCS2 dataset
 The data we have on the 4 common SORCS2 missense variants in the Younkin database (YdB) were captured using the following query:
@@ -251,17 +271,18 @@ The results of this query were copied into SORCS2_Ydb.csv
 
                 #Create function to read in SQL-derived dataset from Younkin database, 
                 #make PLINK files (map, fam, cov.txt, and lgen) and analyze them.
-ydb2plink <- function(input="SORCS2_Ydb.csv", output="SORCS2_YdB") {
+ydb2plink <- function(input="SORCS2_Ydb.csv", output="SORCS2.Ydb") {
 
                 #load requisite packages       
 library(data.table)
 suppressWarnings(suppressMessages(library(dplyr)))
-        
+
+input="SORCS2_Ydb.csv"        
                 #Read in dataset generated from the Younkin database
 data <- read.table(input, sep=',', stringsAsFactors = FALSE, header=T)
 
                 #Create output files
-#output <- "SORCS2_Ydb"
+output <- "SORCS2.Ydb"
 out1 <- paste(output,sep="",".map")
 out2 <- paste(output,sep="",".fam")
 out3 <- paste(output,sep="","_cov.txt")
@@ -362,16 +383,24 @@ write.table(lgen,out4,sep='\t',quote=FALSE,row.names=F,col.names=F)
 #str(SORCS2lgen)
 
 assoc <- paste("plink",sep=" ","--lfile", output, "--assoc", "--ci 0.95", "--out", output)
-logistic <- paste("plink",sep=" ","--lfile", output, "--logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--out", output)
+logistic <- paste("plink",sep=" ","--lfile", output, "--logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--mhf 0.005 --out", output)
+haplog <- paste("plink",sep=" ","--lfile", output, "--hap-window 4 --hap-logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--mhf 0.005 --out", output)
+
 assocfile <- paste(output,sep="",".assoc")
 logisfile <- paste(output,sep="",".assoc.logistic")
+haplogfile <- paste(output,sep="",".assoc.hap.logistic")
+
 system(assoc)
 system(logistic)
+system(haplog)
+
 f1 <- read.table(assocfile, header=T)
 #print(f1)
 f1 <- f1 %>% select(CHR,SNP,BP,F_A, F_U, OR, P) %>% rename(FREQ_AD=F_A, FREQ_CON=F_U, OR_assoc=OR, P_assoc=P)
 print(f1,digits=2,row.names=F)
+print("", quote=F)
 #head(f1)
+
 f1 <- f1 %>% select(CHR,SNP,BP,FREQ_AD,FREQ_CON)
 f2 <- read.table(logisfile, header=T)
 #print(f2)
@@ -379,40 +408,24 @@ f2 <- f2 %>% filter (TEST=="ADD") %>% select (SNP,NMISS,OR,L95,U95,P) %>% rename
 #head(f2)
 f3<- left_join(f1,f2,by="SNP")
 print(f3,digits=2,row.names=F)
+print("", quote=F)
 write.table(f3,out5,sep=",", quote=FALSE,row.names=F,col.names=T)
 #print("PLINK commands:");print(assoc);print(logistic)
+
+f4 <- read.table(haplogfile, header=T)
+f4 <- f4 %>% select(-NSNP,-NHAP,-STAT) %>% arrange(desc(HAPLOTYPE))
+print(f4,digits=2, row.names=F)
+print("", quote=F)
+
+hapomni <- paste("plink",sep=" ","--lfile", output, "--hap-window 4 --hap-logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--mhf 0.005 --hap-omnibus --out", output)
+system(hapomni)
+f4 <- read.table(haplogfile, header=T)
+f4 <- f4 %>% rename(Pomni=P)
+print(f4,digits=2, row.names=F)
+print("", quote=F)
 }
 
 ```
-####Analyze SORCS2 dataset from Ydb
-```{r}
-ydb2plink(input="SORCS2_Ydb.csv", output="SORCS2_YdB")
-#print(assoc)
-```
-       
-        #PLINK --assoc: analyzes standard case/control (allelic) association with LOAD, no covariates
-#system("plink --lfile output --assoc --ci 0.95 --out output")
-#t1assoc <- read.table(paste(output, sep="", ".assoc"), header = T)
-#str(SORCS2assoc);head(SORCS2assoc);tail(SORCS2assoc)
-
-#ydb2plink()
-
-        #PLINK --logistic: analyzes association by logistic regression using an additive model with all covariates
-#system("plink --lfile output --logistic --ci 0.95 --covar out3 --covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose --out output")
-#t2logistic <- read.table(paste(output, sep="", ".assoc.logisitc", header = T)
-
-#str(SORCS2logAll);head(SORCS2logAll);tail(SORCS2logAll)
-#x <- select (SORCS2logAll, SNP,TEST,NMISS, OR, L95, U95, P)
-#print.data.frame(x)
-#x <- filter(x, TEST=="ADD")
-#print.data.frame(x)
-
-#system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --out SORCS2haplogAllCov")
-#system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --hap-omnibus --out SORCS2haplogAllCovOmni")
-#system("plink --lfile SORCS2 --logistic --ci 0.95 --covar SORCS2cov.txt --covar-name APOE4dose,APOE2dose --out SORCS2logAPOECov")
-#list.files()
-```
-
 
 ####Read in and Analyze ADSP SORCS2 dataset
 
@@ -420,16 +433,26 @@ The data we have on the 4 common SORCS2 missense variants in our ADSP dataset wa
 
 ```{r}
                 #Create function that reads in the ADSP dataset generated by Joseph Reddy and outputs PLINK map, fam, cov.txt, and lgen files
-ADSP2plink <- function(file="SORCS2_ff.txt", out1="SORCS2_ADSP.map", out2="SORCS2_ADSP.fam", out3="SORCS2_ADSP_cov.txt", out4="SORCS2_ADSP.lgen") {
+adsp2plink <- function(input="SORCS2_ff.txt", output="SORCS2.adsp") {
 
                 #load requisite packages       
 library(data.table)
-library(dplyr)        
+suppressWarnings(suppressMessages(library(dplyr)))        
 
 
         #Read in data on 4 common SORCS2 missense variants in the ADSP database        #
-ADSP <- read.table("SORCS2_ff.txt", stringsAsFactors = FALSE, header = T)
-str(ADSP);head(ADSP);tail(ADSP)
+input <- "SORCS2_ff.txt"
+data <- read.table(input, stringsAsFactors = FALSE, header=T)
+#str(data);head(data); tail(data)
+
+#Create output files
+output <- "SORCS2.adsp"
+out1 <- paste(output,sep="",".map")
+out2 <- paste(output,sep="",".fam")
+out3 <- paste(output,sep="","_cov.txt")
+out4 <- paste(output,sep="",".lgen")
+out5 <- paste(output,sep="",".plink.csv")
+#print(out1);print(out2);print(out3);print(out4);print(out5)
 
         #Filter, using dplyr package, to include only subjects with: 
         #Case.control = 2 or 1 corresponding to AD or CON, Sex = 0 or 1 (M or F), APOE = 22,23,24,33,34,or 44 
@@ -440,14 +463,12 @@ sex_1 <- c(0,1)
 apoe_1 <- c(22,23,24,33,34,44)
 series_1 <- c("ADSP")
 call_1 <- c(11,12,22)
-SORCS2_1 <- filter(ADSP, Case.control %in% dx_1, Sex %in% sex_1, APOE %in% apoe_1, Series %in% series_1, Call %in% call_1)
-#SORCS2_1 <- mutate(SORCS2,Age=as.numeric(DxAge))
-SORCS2_1 <- filter (SORCS2_1, Age >= 65)
-str(SORCS2_1);head(SORCS2_1);tail(SORCS2_1)
+data <- filter(data, Case.control %in% dx_1, Sex %in% sex_1, APOE %in% apoe_1, Series %in% series_1, Call %in% call_1)
+data <- filter (data, Age >= 65)
+#str(data);head(data);tail(data)
 
         #Create PLINK map file
-library(data.table)
-map <- select(SORCS2_1, SNP_ID, Position)
+map <- select(data, SNP_ID, Position)
 map <- mutate(map,morgans=0, chr=4)
 map <- rename(map, bp=Position, rs=SNP_ID)
 map <- select(map,chr,rs,morgans,bp)
@@ -456,42 +477,41 @@ snps <- c("rs6816604","rs35935435","rs16840892","rs34058821")
 map <- filter(map,rs %in% snps )
 #print(map)
 write.table(map,out1,sep='\t',quote=FALSE,row.names=F,col.names=F)
-#SORCS2map_1=read.table("SORCS2_1.map", header = F)
-#print(SORCS2map_1,row.names=F,col.names=F)
+
 
         #Create variables for PLINK fam, cov, and lgen files
-SORCS2_1 <- mutate(SORCS2_1, AFF=99, A1=99, A2=99, APOE4dose=99, APOE2dose=99, SEX=99, ADSP=0, FID=0, IID=as.character(Subject_ID), PID=0, MID=0)
+data <- mutate(data, AFF=99, A1=99, A2=99, APOE4dose=99, APOE2dose=99, SEX=99, ADSP=0, FID=0, IID=as.character(Subject_ID), PID=0, MID=0)
 
-SORCS2_1[SORCS2_1$Case.control == 0,][, "AFF"] <- 1  #CON=0
-SORCS2_1[SORCS2_1$Case.control == 1,][, "AFF"] <- 2  #AD=1
-SORCS2_1[SORCS2_1$Case.control == 2,][, "AFF"] <- 2  #probable AD=2 are included as AD for PLINK analysis
+data[data$Case.control == 0,][, "AFF"] <- 1  #CON=0
+data[data$Case.control == 1,][, "AFF"] <- 2  #AD=1
+data[data$Case.control == 2,][, "AFF"] <- 2  #probable AD=2 are included as AD for PLINK analysis
 
-SORCS2_1[SORCS2_1$Call == 11,][, "A1"] <- 1
-SORCS2_1[SORCS2_1$Call == 12,][, "A1"] <- 1
-SORCS2_1[SORCS2_1$Call == 22,][, "A1"] <- 2
+data[data$Call == 11,][, "A1"] <- 1
+data[data$Call == 12,][, "A1"] <- 1
+data[data$Call == 22,][, "A1"] <- 2
 
-SORCS2_1[SORCS2_1$Call == 11,][, "A2"] <- 1
-SORCS2_1[SORCS2_1$Call == 12,][, "A2"] <- 2
-SORCS2_1[SORCS2_1$Call == 22,][, "A2"] <- 2
+data[data$Call == 11,][, "A2"] <- 1
+data[data$Call == 12,][, "A2"] <- 2
+data[data$Call == 22,][, "A2"] <- 2
 
-SORCS2_1[SORCS2_1$Sex == 0,][, "SEX"] <- 1   #M=0
-SORCS2_1[SORCS2_1$Sex == 1,][, "SEX"] <- 2   #F=1
+data[data$Sex == 0,][, "SEX"] <- 1   #M=0
+data[data$Sex == 1,][, "SEX"] <- 2   #F=1
 
-SORCS2_1[SORCS2_1$APOE == 22,][, "APOE4dose"] <- 0
-SORCS2_1[SORCS2_1$APOE == 23,][, "APOE4dose"] <- 0
-SORCS2_1[SORCS2_1$APOE == 24,][, "APOE4dose"] <- 1
-SORCS2_1[SORCS2_1$APOE == 33,][, "APOE4dose"] <- 0
-SORCS2_1[SORCS2_1$APOE == 34,][, "APOE4dose"] <- 1
-SORCS2_1[SORCS2_1$APOE == 44,][, "APOE4dose"] <- 2
+data[data$APOE == 22,][, "APOE4dose"] <- 0
+data[data$APOE == 23,][, "APOE4dose"] <- 0
+data[data$APOE == 24,][, "APOE4dose"] <- 1
+data[data$APOE == 33,][, "APOE4dose"] <- 0
+data[data$APOE == 34,][, "APOE4dose"] <- 1
+data[data$APOE == 44,][, "APOE4dose"] <- 2
 
-SORCS2_1[SORCS2_1$APOE == 22,][, "APOE2dose"] <- 2
-SORCS2_1[SORCS2_1$APOE == 23,][, "APOE2dose"] <- 1
-SORCS2_1[SORCS2_1$APOE == 24,][, "APOE2dose"] <- 1
-SORCS2_1[SORCS2_1$APOE == 33,][, "APOE2dose"] <- 0
-SORCS2_1[SORCS2_1$APOE == 34,][, "APOE2dose"] <- 0
-SORCS2_1[SORCS2_1$APOE == 44,][, "APOE2dose"] <- 0
+data[data$APOE == 22,][, "APOE2dose"] <- 2
+data[data$APOE == 23,][, "APOE2dose"] <- 1
+data[data$APOE == 24,][, "APOE2dose"] <- 1
+data[data$APOE == 33,][, "APOE2dose"] <- 0
+data[data$APOE == 34,][, "APOE2dose"] <- 0
+data[data$APOE == 44,][, "APOE2dose"] <- 0
 
-SORCS2_1[SORCS2_1$Series == "ADSP",][, "ADSP"] <- 1
+data[data$Series == "ADSP",][, "ADSP"] <- 1
 #SORCS2[SORCS2$Series == "SibPair_White",][, "JS"] <- 1
 #SORCS2[SORCS2$Series == "RS",][, "RS"] <- 1
 #SORCS2[SORCS2$Series == "AUT",][, "AUT"] <- 1
@@ -502,9 +522,9 @@ SORCS2_1[SORCS2_1$Series == "ADSP",][, "ADSP"] <- 1
 #print(y)
 
         #Create PLINK fam file
-fam <- select(SORCS2_1,FID,IID,PID,MID,SEX,AFF)
+fam <- select(data,FID,IID,PID,MID,SEX,AFF)
 fam <- distinct(fam)
-str(fam); head(fam); tail(fam)
+#str(fam); head(fam); tail(fam)
 write.table(fam,out2,sep='\t',quote=FALSE,row.names=F,col.names=F)
 #SORCS2fam_1=read.table("SORCS2_1.fam", header = F)
 #str(SORCS2fam_1);head(SORCS2fam_1);tail(SORCS2fam_1)
@@ -512,22 +532,72 @@ write.table(fam,out2,sep='\t',quote=FALSE,row.names=F,col.names=F)
         #Create PLINK cov file; 
         #Not sure why, but errors sometimes occurred in r when using "SORCS2.cov"" as output using write.table
         #So I used "SORCS2cov.txt" thereby avoiding this problem
-cov <- select(SORCS2_1,FID,IID,ADSP,SEX,Age,APOE4dose,APOE2dose)
+cov <- select(data,FID,IID,ADSP,SEX,Age,APOE4dose,APOE2dose)
 cov <- distinct(cov)
-str(cov)
+#str(cov)
 write.table(cov,out3,sep='\t',quote=FALSE,row.names=F,col.names=T)
 #SORCS2cov_1=read.table("SORCS2_1cov.txt", header = T)
 #str(SORCS2cov_1);head(SORCS2cov_1); tail(SORCS2cov_1)
 
         #Create PLINK lgen file
-lgen <- select(SORCS2_1,FID,IID,SNP_ID,A1,A2)
-str(lgen)
+lgen <- select(data,FID,IID,SNP_ID,A1,A2)
+#str(lgen)
 write.table(lgen,out4,sep='\t',quote=FALSE,row.names=F,col.names=F)
+
+
+
+assoc <- paste("plink",sep=" ","--lfile", output, "--assoc", "--ci 0.95", "--out", output)
+logistic <- paste("plink",sep=" ","--lfile", output, "--logistic", "--covar", out3, "--covar-name SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--out", output)
+haplog <- paste("plink",sep=" ","--lfile", output, "--hap-window 4 --hap-logistic", "--covar", out3, "--covar-name SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--mhf 0.005 --out", output)
+
+
+assocfile <- paste(output,sep="",".assoc")
+logisfile <- paste(output,sep="",".assoc.logistic")
+haplogfile <- paste(output,sep="",".assoc.hap.logistic")
+
+system(assoc)
+system(logistic)
+system(haplog)
+
+f1 <- read.table(assocfile, header=T)
+#print(f1)
+f1 <- f1 %>% select(CHR,SNP,BP,F_A, F_U, OR, P) %>% rename(FREQ_AD=F_A, FREQ_CON=F_U, OR_assoc=OR, P_assoc=P)
+print(f1,digits=2,row.names=F)
+print("", quote=F)
+#head(f1)
+
+f1 <- f1 %>% select(CHR,SNP,BP,FREQ_AD,FREQ_CON)
+f2 <- read.table(logisfile, header=T)
+#print(f2)
+f2 <- f2 %>% filter (TEST=="ADD") %>% select (SNP,NMISS,OR,L95,U95,P) %>% rename(OR_logis=OR, P_logis=P)
+#head(f2)
+f3<- left_join(f1,f2,by="SNP")
+print(f3,digits=2,row.names=F)
+print("", quote=F)
+write.table(f3,out5,sep=",", quote=FALSE,row.names=F,col.names=T)
+
+f4 <- read.table(haplogfile, header=T)
+f4 <- f4 %>% select(-NSNP,-NHAP,-STAT) %>% arrange(desc(HAPLOTYPE))
+print(f4,digits=2, row.names=F)
+print("", quote=F)
+
+hapomni <- paste("plink",sep=" ","--lfile", output, "--hap-window 4 --hap-logistic", "--covar", out3, "--covar-name SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--mhf 0.005 --hap-omnibus --out", output)
+system(hapomni)
+f4 <- read.table(haplogfile, header=T)
+f4 <- f4 %>% rename(Pomni=P)
+print(f4,digits=2, row.names=F)
+print("", quote=F)
+
+
+
+
+
+
 #SORCS2lgen_1=read.table("SORCS2_1.lgen", header = F)
 #str(SORCS2lgen_1);head(SORCS2lgen_1);tail(SORCS2lgen_1)
 }
 #ADSP2plink(,out1="ADSP.map", out2="ADSP.fam", out3="ADSPcov.txt", out4="ADSP.lgen")
-list.files()
+#list.files()
 
 
         #PLINK --assoc: analyzes standard case/control (allelic) association with LOAD, no covariates
@@ -543,11 +613,253 @@ list.files()
 #a<- read.table("ADSPcov.txt", header=T)
 #print.data.frame(a)
 ```
-print.data.frame(x)
-print.data.frame(y)
+
+####Create combined ydb-adsp dataset and analyse it
+```{r}
+comb2plink <- function(output="SORCS2.comb") {
+
+                #load requisite packages       
+library(data.table)
+suppressWarnings(suppressMessages(library(dplyr)))
+
+
+#Create output files
+output <- "SORCS2.comb"
+out1 <- paste(output,sep="",".map")
+out2 <- paste(output,sep="",".fam")
+out3 <- paste(output,sep="","_cov.txt")
+out4 <- paste(output,sep="",".lgen")
+out5 <- paste(output,sep="",".plink.csv") 
+
+#Generate PLINK map file by copying and renaming "SORCS2.adsp.map"
+map <- read.table("SORCS2.adsp.map", header = F)
+write.table(map, out1, sep='\t',quote=FALSE,row.names=F,col.names=F)
+
+#Use dplyr bind_rows to generate combined fam, cov, and lgen files
+
+fam.ydb <- read.table("SORCS2.Ydb.fam", header=F, stringsAsFactors = FALSE)
+colnames(fam.ydb) <- c("FID","IID","PID","MID","SEX","AFF")
+fam.ydb <- fam.ydb %>% mutate(IID=as.character(IID))
+str(fam.ydb)
+fam.adsp <- read.table("SORCS2.adsp.fam", header=F, stringsAsFactors = FALSE)
+colnames(fam.adsp) <- c("FID","IID","PID","MID","SEX","AFF")
+str(fam.adsp)
+fam.comb <- bind_rows(fam.ydb,fam.adsp)
+str(fam.comb)
+write.table(fam.comb, out2, sep='\t',quote=FALSE,row.names=F,col.names=F)
+
+cov.ydb <- read.table("SORCS2.Ydb_cov.txt", header=T, stringsAsFactors = FALSE)
+#colnames(cov.ydb) <- c("FID","IID","PID","MID","SEX","AFF")
+cov.ydb <- cov.ydb %>% mutate(IID=as.character(IID))
+str(cov.ydb)
+cov.adsp <- read.table("SORCS2.adsp_cov.txt", header=T, stringsAsFactors = FALSE)
+#colnames(cov.adsp) <- c("FID","IID","PID","MID","SEX","AFF")
+str(cov.adsp)
+cov.comb <- bind_rows(cov.ydb,cov.adsp)
+str(cov.comb)
+x <- cov.comb %>% group_by(JS,RS,AUT,NCRAD,NW,ADSP) %>% summarise(n())
+print(x)
+cov.comb[is.na(cov.comb)]<-0
+x <- cov.comb %>% group_by(JS,RS,AUT,NCRAD,NW,ADSP) %>% summarise(n())
+print(x)
+write.table(cov.comb, out3, sep='\t',quote=FALSE,row.names=F,col.names=T)
+
+lgen.ydb <- read.table("SORCS2.Ydb.lgen", header=F, stringsAsFactors = FALSE)
+colnames(lgen.ydb) <- c("FID","IID","rs","A1","A2")
+lgen.ydb <- lgen.ydb %>% mutate(IID=as.character(IID))
+str(lgen.ydb)
+lgen.adsp <- read.table("SORCS2.adsp.lgen", header=F, stringsAsFactors = FALSE)
+colnames(lgen.adsp) <- c("FID","IID","rs","A1","A2")
+str(lgen.adsp)
+lgen.comb <- bind_rows(lgen.ydb,lgen.adsp)
+str(lgen.comb)
+write.table(lgen.comb, out4, sep='\t',quote=FALSE,row.names=F,col.names=F)
+
+assoc <- paste("plink",sep=" ","--lfile", output, "--assoc", "--ci 0.95", "--out", output)
+logistic <- paste("plink",sep=" ","--lfile", output, "--logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--out", output)
+haplog <- paste("plink",sep=" ","--lfile", output, "--hap-window 4 --hap-logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,ADSP,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--mhf 0.005 --out", output)
+
+
+assocfile <- paste(output,sep="",".assoc")
+logisfile <- paste(output,sep="",".assoc.logistic")
+haplogfile <- paste(output,sep="",".assoc.hap.logistic")
+
+system(assoc)
+system(logistic)
+system(haplog)
+
+f1 <- read.table(assocfile, header=T)
+#print(f1)
+f1 <- f1 %>% select(CHR,SNP,BP,F_A, F_U, OR, P) %>% rename(FREQ_AD=F_A, FREQ_CON=F_U, OR_assoc=OR, P_assoc=P)
+print(f1,digits=2,row.names=F)
+print("", quote=F)
+#head(f1)
+
+f1 <- f1 %>% select(CHR,SNP,BP,FREQ_AD,FREQ_CON)
+f2 <- read.table(logisfile, header=T)
+#print(f2)
+f2 <- f2 %>% filter (TEST=="ADD") %>% select (SNP,NMISS,OR,L95,U95,P) %>% rename(OR_logis=OR, P_logis=P)
+#head(f2)
+f3<- left_join(f1,f2,by="SNP")
+print(f3,digits=2,row.names=F)
+print("", quote=F)
+write.table(f3,out5,sep=",", quote=FALSE,row.names=F,col.names=T)
+
+f4 <- read.table(haplogfile, header=T)
+f4 <- f4 %>% select(-NSNP,-NHAP,-STAT) %>% arrange(desc(HAPLOTYPE))
+print(f4,digits=2, row.names=F)
+print("", quote=F)
+
+hapomni <- paste("plink",sep=" ","--lfile", output, "--hap-window 4 --hap-logistic", "--covar", out3, "--covar-name RS,AUT,NCRAD,NW,ADSP,SEX,Age,APOE4dose,APOE2dose", "--ci 0.95", "--mhf 0.005 --hap-omnibus --out", output)
+system(hapomni)
+f4 <- read.table(haplogfile, header=T)
+f4 <- f4 %>% rename(Pomni=P)
+print(f4,digits=2, row.names=F)
+print("", quote=F)
+
+}
 ```
-#system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --out SORCS2haplogAllCov")
-#system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --hap-omnibus --out #SORCS2haplogAllCovOmni")
+
+
+```
+
+####Analyze SORCS2 dataset from Chris Medway
+```{r}
+cm2plink(input="SORCS2_CM.csv", output="SORCS2_CM")
+```
+
+####Analyze SORCS2 dataset from Ydb
+```{r}
+ydb2plink(input="SORCS2_Ydb.csv", output="SORCS2.Ydb")
+#print(assoc)
+```
+
+####Analyze SORCS2 dataset from ADSP
+```{r}
+adsp2plink(input="SORCS2_ff.txt", output="SORCS2.adsp")
+#print(assoc)
+```
+
+###Analyze SORCS2 dataset from comb
+```{r}
+comb2plink(output="SORCS2.comb")
+#print(assoc)
+```
+
+####Compare SORCS2 datasets: Chris Medway vs. current Ydb
+```{r}
+        #Compare series in covariate file
+
+cov.ydb<- read.table("SORCS2_Ydb_cov.txt",header=T, stringsAsFactors = FALSE)
+colnames(cov.ydb) <- c("FID","IID","JS.ydb","RS.ydb","AUT.ydb","NCRAD.ydb","NW.ydb","SEX.ydb","Age.ydb","APOE4dose.ydb","APOE2dose.ydb")
+#str(cov.ydb)
+x <- cov.ydb %>% group_by(JS.ydb,RS.ydb,AUT.ydb,NCRAD.ydb,NW.ydb) %>% summarize(n())
+#print.data.frame(x,row.names=F)
+
+cov.cm<- read.table("SORCS2.CM_cov.txt",header=T)
+#str(cov.cm)
+colnames(cov.cm) <- c("FID","IID","JS.cm","RS.cm","AUT.cm","NCRAD.cm","NW.cm","SEX.cm","Age.cm","APOE4dose.cm","APOE2dose.cm")
+#str(cov.cm)
+x <- cov.cm %>% group_by(JS.cm,RS.cm,AUT.cm,NCRAD.cm,NW.cm) %>% summarize(n())
+print.data.frame(x,row.names=F)
+
+       #Full join cm and ydb lgen and cov files
+
+cov.ydb<- read.table("SORCS2_Ydb_cov.txt",header=T, stringsAsFactors = FALSE)
+colnames(cov.ydb) <- c("FID","IID","JS.ydb","RS.ydb","AUT.ydb","NCRAD.ydb","NW.ydb","SEX.ydb","Age.ydb","APOE4dose.ydb","APOE2dose.ydb")
+#str(cov.ydb)
+
+lgen.head.ydb <- c("FID","IID","rs.ydb","A1.ydb", "A2.ydb")
+lgen.ydb<- read.table("SORCS2_Ydb.lgen", header=F, col.names=lgen.head.ydb, stringsAsFactors = FALSE)
+#str(lgen.ydb)
+
+fam.head.ydb <- c("FID","IID","PID.ydb","MID.ydb", "SEX.ydb", "DX.ydb")
+fam.ydb<- read.table("SORCS2_Ydb.fam", header=F, col.names=fam.head.ydb, stringsAsFactors = FALSE)
+#str(fam.ydb)
+
+fam.ydb <- select(fam.ydb,IID,DX.ydb)
+all.ydb <- left_join(cov.ydb,fam.ydb,by="IID")
+#str(all.ydb)
+lgen.ydb <- select(lgen.ydb,IID:A2.ydb)
+#str(lgen.ydb)
+all.ydb <- left_join(all.ydb, lgen.ydb, by="IID")
+#str(all.ydb)
+
+#str(all.ydb)
+
+cov.cm<- read.table("SORCS2.CM_cov.txt",header=T, stringsAsFactors = FALSE)
+colnames(cov.cm) <- c("FID","IID","JS.cm","RS.cm","AUT.cm","NCRAD.cm","NW.cm","SEX.cm","Age.cm","APOE4dose.cm","APOE2dose.cm")
+str(cov.cm)
+
+lgen.head.cm <- c("FID","IID","rs.cm","A1.cm", "A2.cm")
+lgen.cm<- read.table("SORCS2.CM.lgen", header=F, col.names=lgen.head.cm, stringsAsFactors = FALSE)
+#str(lgen.cm)
+
+fam.head.cm <- c("FID","IID","PID.cm","MID.cm", "SEX.cm", "DX.cm")
+fam.cm<- read.table("SORCS2.CM.fam", header=F, col.names=fam.head.cm, stringsAsFactors = FALSE)
+#str(fam.cm)
+
+fam.cm <- select(fam.cm,IID,DX.cm)
+all.cm <- left_join(cov.cm,fam.cm,by="IID")
+#str(all.cm)
+lgen.cm <- select(lgen.cm,IID:A2.cm)
+#str(lgen.cm)
+all.cm <- left_join(all.cm, lgen.cm, by="IID")
+#all.cm <- 
+#str(all.cm)
+
+
+#all.cm.ydb <- full_join(all.cm,all.ydb, by="IID")
+#str(all.cm.ydb)
+#all.cm.ydb <- filter(all.cm.ydb,rs.cm==rs.ydb | is.na(rs.cm) | is.na(rs.ydb))
+#str(all.cm.ydb)
+#addl.cm <- filter(all.cm.ydb,is.na(rs.ydb))
+#str(addl.cm)
+#only.ydb <- filter(all.cm.ydb,!is.na(rs.ydb))
+#str(only.ydb)
+
+
+#addl.cm <- addl.cm %>% select()
+#str(all.cm.ydb)
+#x <- all.cm.ydb %>% filter(Age.cm==Age.ydb) %>% summarise(n())
+#print(x)
+#x <- sum(is.na(all.cm.ydb$IID))
+#print(x)
+#x <- all.cm.ydb %>% select(IID) %>% distinct %>% summarize(n())
+#print(x)
+
+#x <- cov.ydb %>% group_by(JS,RS,AUT,NCRAD,NW) %>% summarize(n())
+#print(x,row.names=F)
+#cov.cm<- read.table("SORCS2.CM_cov.txt",header=T)
+#str(cov.cm)
+#x <- cov.cm %>% group_by(JS,RS,AUT,NCRAD,NW) %>% summarize(n())
+#print(x,row.names=F)
+```
+
+PLINK --assoc: analyzes standard case/control (allelic) association with LOAD, no covariates
+system("plink --lfile output --assoc --ci 0.95 --out output")
+t1assoc <- read.table(paste(output, sep="", ".assoc"), header = T)
+str(SORCS2assoc);head(SORCS2assoc);tail(SORCS2assoc)
+
+ydb2plink()
+
+PLINK --logistic: analyzes association by logistic regression using an additive model with all covariates
+system("plink --lfile output --logistic --ci 0.95 --covar out3 --covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose --out output")
+t2logistic <- read.table(paste(output, sep="", ".assoc.logisitc", header = T)
+
+str(SORCS2logAll);head(SORCS2logAll);tail(SORCS2logAll)
+x <- select (SORCS2logAll, SNP,TEST,NMISS, OR, L95, U95, P)
+print.data.frame(x)
+x <- filter(x, TEST=="ADD")
+print.data.frame(x)
+
+system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --out SORCS2haplogAllCov")
+system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --hap-omnibus --out SORCS2haplogAllCovOmni")
+system("plink --lfile SORCS2 --logistic --ci 0.95 --covar SORCS2cov.txt --covar-name APOE4dose,APOE2dose --out SORCS2logAPOECov")
+list.files()
+
+system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --out SORCS2haplogAllCov")
+system("plink --lfile SORCS2 --hap-window 4 --hap-logistic --ci 0.95 --covar SORCS2cov.txt --covar-name RS-APOE2dose --mhf 0.005 --hap-omnibus --out #SORCS2haplogAllCovOmni")
 system("plink --lfile SORCS2 --logistic --ci 0.95 --covar SORCS2cov.txt --covar-name APOE4dose,APOE2dose --out SORCS2logAPOECov")
 list.files()
 
@@ -578,6 +890,9 @@ head(SORCS2_FF)
 SORCS2_variants <- read.table("SORCS2_allele_counts.txt", header = TRUE, check.names = FALSE)
 head(SORCS2_variants)
 ```
-y
+
+
+
+
 
 

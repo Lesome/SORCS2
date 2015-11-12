@@ -1,0 +1,41 @@
+
+@----------------------------------------------------------@
+|        PLINK!       |     v1.07      |   10/Aug/2009     |
+|----------------------------------------------------------|
+|  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
+|----------------------------------------------------------|
+|  For documentation, citation & bug-report instructions:  |
+|        http://pngu.mgh.harvard.edu/purcell/plink/        |
+@----------------------------------------------------------@
+
+Web-based version check ( --noweb to skip )
+Recent cached web-check found... OK, v1.07 is current
+
++++ PLINK 1.9 is now available! See above website for details +++ 
+
+Writing this text to log file [ SORCS2.ydb.adsp.log ]
+Analysis started: Wed Nov 11 17:24:14 2015
+
+Options in effect:
+	--lfile SORCS2.ydb.adsp
+	--hap-window 4
+	--hap-logistic
+	--covar SORCS2.ydb.adsp_cov.txt
+	--covar-name RS,AUT,NCRAD,NW,ADSP,SEX,Age,APOE4dose,APOE2dose
+	--ci 0.95
+	--mhf 0.005
+	--out SORCS2.ydb.adsp
+
+** For gPLINK compatibility, do not use '.' in --out **
+4 (of 4) markers to be included from [ SORCS2.ydb.adsp.map ]
+Reading pedigree information from [ SORCS2.ydb.adsp.fam ] 
+8681 individuals read from [ SORCS2.ydb.adsp.fam ] 
+8681 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+4021 cases, 4660 controls and 0 missing
+3593 males, 5088 females, and 0 of unspecified sex
+Reading 10 covariates from [ SORCS2.ydb.adsp_cov.txt ] with nonmissing values for 8681 individuals
+
+ERROR: Cannot find value: RS
+
