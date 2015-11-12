@@ -865,9 +865,9 @@ list.files()
 
 
 ###Ben and Leonie's Content
-![](20151111 genemap.png)
+![](20151112 genemap.png)
 
-<span style="color:grey"><font size="0.6">__*Figure 1* | SorCS2 gene diagram. A)__ Position of SorCS2 on chromosome 4 (red box). __B)__ SorCS2 gene intron-exon layout. Exon length 100x magnified, exons containing the SNPs of interest highlighted in green. __C)__ Relative position of SNPs of interest on exons 7, 16 and 17. __D)__ Relative position of SNPs of interest on SorCS2 protein. Domains highlighted and indicated.</font></span>
+<span style="color:grey"><font size="0.8">__*Figure 1* | SorCS2 gene diagram. A)__ Position of SorCS2 on chromosome 4 (red box). __B)__ SorCS2 gene intron-exon layout. Exon length 100x magnified, exons containing the SNPs of interest highlighted in green. Zoomed in on relative position of SNPs of interest on exons 7, 16 and 17. __C)__ Relative position of SNPs of interest on SorCS2 protein. Domains highlighted and indicated.</font></span>
 
 
 ###Joseph's Content
