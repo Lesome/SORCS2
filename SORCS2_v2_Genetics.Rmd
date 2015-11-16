@@ -865,6 +865,195 @@ list.files()
 
 
 ###Ben and Leonie's Content
+
+## Preliminary R code generating figures
+```{r}
+library(seqinr)
+
+# gene + SNP information
+sorcs2 <- data.frame(Chr=c(4,4,4,4),id=c("rs34058821","rs16840892","rs35935435","rs6816604"),bp=c(7666160,7716061,7666180,7716932))
+snps <- sorcs2$bp - 7194374 #start position of gene
+protsnps <- c(345,351,695,716)
+s2dom <- read.fasta("SorCS2 domains.txt") 
+wd <- 30
+cex <- 1
+
+# read in exons and introns
+s2exin <- read.fasta("SorCS2 EXON intron 3'UTR.txt") 
+
+##exons+UTR
+
+# calculate lengths of exons and introns
+s2exinlength <- vector()
+for (i in 1:length(s2exin)) {
+  s2exinlength[i] <- length(s2exin[[i]]) 
+}
+
+# split into lengths of exons only and lengths of introns only
+s2exlength <- s2exinlength[1:length(s2exinlength)%%2 == 1]
+s2inlength <- s2exinlength[1:length(s2exinlength)%%2 == 0]
+
+# calculate start of each exon
+s2exst <- vector()
+s2exst[1] <- 1
+for (i in 2:length(s2exlength)) {
+  s2exst[i] <- s2exst[i-1] + s2exlength[i-1] + s2inlength[i-1] 
+}
+
+# calculate exon number for each SNP
+snpexon <- vector()
+snpexon <- rep(0,length(snps))
+
+for (i in 1:length(snpexon)) {
+  j <- 1
+  while (snps[i]>s2exst[j])  {
+    snpexon[i] <- snpexon[i]+1
+    j <- j+1  }
+}
+
+# calculate SNP position within exon
+snpexpos <- vector()
+for (i in 1:length(snpexon)) {
+  snpexpos[i] <- snps[i] - s2exst[snpexon[i]]
+}
+
+# calculate start of each exon and intron with adjusted proportions
+s2exstart <- vector()
+s2instart <- vector()
+s2exstart[1] <- 1
+for (i in 2:length(s2exlength)) {
+  s2instart[i-1] <- s2exstart[i-1] + s2exlength[i-1] 
+  s2exstart[i] <- s2exstart[i-1] + s2exlength[i-1] + 0.01*s2inlength[i-1] 
+}
+s2instart[length(s2inlength)] <- s2exstart[length(s2inlength)] + s2exlength[length(s2inlength)]
+
+# calculate total length of gene with adjusted proportions of introns and 3'UTR
+s2end <- s2instart[length(s2inlength)] + 0.1*s2inlength[length(s2inlength)] #adjust size of 3'UTR
+
+
+
+##exbigfocus
+
+# calculate exon number for each SNP
+snpexon <- vector()
+snpexon <- rep(0,length(snps))
+
+for (i in 1:length(snpexon)) {
+  j <- 1
+  while (snps[i]>s2exst[j])  {   # change if snp in last exon
+    snpexon[i] <- snpexon[i]+1
+    j <- j+1  }
+}
+snpexes <- sort(unique(snpexon))
+
+# calculate SNP position within exon
+snpexpos <- vector()
+for (i in 1:length(snpexon)) {
+  snpexpos[i] <- snps[i] - s2exst[snpexon[i]]
+}
+
+# calculate end of displayed exons plus intervals
+s2length <- vector()
+s2length[1] <- 0
+h <- 1
+for (i in snpexes) {
+  s2length[h+1] <- s2length[h] + 20 + s2exlength[i]
+  h <- h+1
+}
+s2length[length(s2length)] <- s2length[length(s2length)] - 20
+
+##proteindomains
+
+# calculate length of each domain
+s2domlength <- vector()
+for (i in 1:length(s2dom))
+  s2domlength[i] <- length(s2dom[[i]])
+names(s2domlength) <- c("SS","Propeptide","VPS10P","PKD","LRR","TM","C-tail")
+
+# calculate end of each domain
+s2domend <- vector()
+s2domend[1] <- length(s2dom[[1]])
+for (i in 2:length(s2dom))
+  s2domend[i] <- length(s2dom[[i]]) + s2domend[[i-1]]
+
+# calculate protein length
+s2protlength <- sum(s2domlength)
+
+# define colors
+domcol <- c("red4","orange","yellow","green","cyan","blue","magenta4")
+
+
+## plot
+
+layout(matrix(1:3, ncol = 1), widths = 1, heights = c(5,5,5), respect = FALSE)
+
+# initiate plot
+plot(c(0, s2end), c(-100, 100), main="SorCS2 gene \n exons in correct proportions \n SNP positions indicated", sub="introns 1/100 of original size \n 3'UTR 1/10 of original size", type= "n", xaxt='n', ylab="",xlab="",yaxt='n',frame.plot=FALSE)
+
+# plot exons and introns
+for (i in 1:(length(s2exlength)-1)) {
+  rect(s2exstart[i], -wd, s2instart[i]-1, wd, col="royalblue1", border="black") #exons
+  rect(s2instart[i], -0.2, s2exstart[i+1]-1, 0.2, col="grey", border="black") #introns
+} 
+rect(s2exstart[length(s2exlength)], -wd, s2instart[length(s2exlength)], wd, col="royalblue1", border="black") #last exon
+rect(s2instart[length(s2exlength)],-0.8*wd, s2end, 0.8*wd, col="lightskyblue", border="black" ) #3'UTR
+
+# plot SNPs
+for (i in 1:(length(snps))) {
+  rect(s2exstart[snpexon[i]]+snpexpos[i]-0.1, -wd, s2exstart[snpexon[i]]+snpexpos[i]+0.1, wd+20, col="black", border="black") 
+}
+# plot SNP names
+for (i in 1:(length(snps))) {
+  text(s2exstart[snpexon[i]]+snpexpos[i],wd+30, labels = sorcs2$id[i], cex=0.9*cex, srt = 45, pos =4) 
+}
+text(s2instart[length(s2inlength)],-wd+10, labels = "3'UTR", cex=0.9*cex, srt = 90, pos =4, offset = 1) #plot 3'UTR
+
+
+par()
+
+# initiate plot
+plot(c(s2length[1], s2length[length(s2length)]), c(-100, 100), main="SorCS2 gene section zoomed in on exons containing SNPs \n SNP positions indicated", xaxt='n', ylab="", xlab="", yaxt='n', type= "n",frame.plot=FALSE)
+
+# plot exons 
+for (i in 1:length(snpexes)) {
+  rect(s2length[i], -wd, s2length[i] + s2exlength[snpexes[i]], wd, col="royalblue1", border="black") #exons
+}
+
+# plot SNPs
+for (i in 1:(length(snps))) {
+  rect(s2length[snpexes==snpexon[i]]+snpexpos[i]-0.01, -wd, s2length[snpexes==snpexon[i]]+snpexpos[i]+0.01, wd + 20, col="black", border="black") }
+# plot SNP names
+for (i in 1:(length(snps))) {
+  text(s2length[snpexes==snpexon[i]]+snpexpos[i],wd +30, labels = sorcs2$id[i], cex=0.9*cex, srt = 45, pos =4) }
+# plot exon names
+exonnum <- paste("exon ", snpexes,"/",length(s2exlength),sep="")
+for (i in 1:(length(snpexes))) {
+  text(s2length[i],-wd+10, labels = exonnum[i], cex=1*cex, pos =4) }
+
+par()
+
+# initiate plot
+plot(c(0, s2protlength), c(-100, 100), main="SorCS2 protein \n + domains & SNPs", type= "n", xaxt='n', ylab="",xlab="",yaxt='n',frame.plot=FALSE)
+
+# plot domains in different colors
+rect(0, -wd, s2domlength[i], wd, col=domcol[1], border="black") 
+for (i in 2:length(s2dom))
+  rect(s2domend[i-1], -wd, s2domend[i], wd, col=domcol[i], border="black") 
+
+# plot SNPs 
+for (i in 1:(length(snps))) {
+  rect(3*protsnps[i]-0.1, -wd, 3*protsnps[i]+0.1, wd + 20, col="black", border="black") 
+}
+# plot domain names
+text(s2domend[1]/2,- wd - 10, labels = names(s2domlength[1]), cex=1*cex, pos=1, col=domcol[1])
+for (i in 2:(length(s2domend))) {
+  text(s2domend[i-1]+(s2domend[i]-s2domend[i-1])/2, -wd - 10, labels = names(s2domlength[i]), cex=1*cex, pos=1, col=domcol[i]) 
+}
+# plot SNP names
+for (i in 1:(length(snps))) {
+  text(3*protsnps[i],wd + 30, labels = sorcs2$id[i], cex=0.9*cex, srt = 45, pos =4) }
+```
+
 ![](20151112 genemap.png)
 
 <span style="color:grey"><font size="0.8">__*Figure 1* | SorCS2 gene diagram. A)__ Position of SorCS2 on chromosome 4 (red box). __B)__ SorCS2 gene intron-exon layout. Exon length 100x magnified, exons containing the SNPs of interest highlighted in green. Zoomed in on relative position of SNPs of interest on exons 7, 16 and 17. __C)__ Relative position of SNPs of interest on SorCS2 protein. Domains highlighted and indicated.</font></span>
