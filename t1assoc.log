@@ -14,7 +14,7 @@ Recent cached web-check found... OK, v1.07 is current
 +++ PLINK 1.9 is now available! See above website for details +++ 
 
 Writing this text to log file [ t1assoc.log ]
-Analysis started: Fri Nov 06 11:15:32 2015
+Analysis started: Mon Nov 09 12:32:58 2015
 
 Options in effect:
 	--lfile t1
@@ -39,5 +39,5 @@ After filtering, 3567 cases, 4160 controls and 0 missing
 After filtering, 3193 males, 4534 females, and 0 of unspecified sex
 Writing main association results to [ t1assoc.assoc ] 
 
-Analysis finished: Fri Nov 06 11:15:32 2015
+Analysis finished: Mon Nov 09 12:32:58 2015
 
