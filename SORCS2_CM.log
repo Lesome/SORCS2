@@ -14,12 +14,17 @@ Recent cached web-check found... OK, v1.07 is current
 +++ PLINK 1.9 is now available! See above website for details +++ 
 
 Writing this text to log file [ SORCS2_CM.log ]
-Analysis started: Tue Nov 10 16:00:45 2015
+Analysis started: Sat Nov 14 10:39:54 2015
 
 Options in effect:
 	--lfile SORCS2_CM
-	--assoc
+	--hap-window 4
+	--hap-logistic
+	--covar SORCS2_CM_cov.txt
+	--covar-name RS,AUT,NCRAD,NW,SEX,Age,APOE4dose,APOE2dose
 	--ci 0.95
+	--mhf 0.005
+	--hap-omnibus
 	--out SORCS2_CM
 
 4 (of 4) markers to be included from [ SORCS2_CM.map ]
@@ -30,18 +35,24 @@ Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
 Missing phenotype value is also -9
 3870 cases, 4978 controls and 0 missing
 3737 males, 5111 females, and 0 of unspecified sex
+Reading 9 covariates from [ SORCS2_CM_cov.txt ] with nonmissing values for 8848 individuals
+Selected subset of 8 from 9 covariates
+For these, nonmissing covariate values for 8848 individuals
 Before frequency and genotyping pruning, there are 4 SNPs
 8848 founders and 0 non-founders found
-4 SNPs with no founder genotypes observed
-Warning, MAF set to 0 for these SNPs (see --nonfounders)
-Writing list of these SNPs to [ SORCS2_CM.nof ]
-Total genotyping rate in remaining individuals is 0
+Total genotyping rate in remaining individuals is 0.76797
 0 SNPs failed missingness test ( GENO > 1 )
 0 SNPs failed frequency test ( MAF < 0 )
 After frequency and genotyping pruning, there are 4 SNPs
 After filtering, 3870 cases, 4978 controls and 0 missing
 After filtering, 3737 males, 5111 females, and 0 of unspecified sex
-Writing main association results to [ SORCS2_CM.assoc ] 
 
-Analysis finished: Tue Nov 10 16:00:45 2015
+Created 1 sliding windows
+Estimating haplotype frequencies/phases ( MHF >= 0.005 )
+Considering phases P(H|G) >= 0.01
+Requiring per individual per haplotype missingness < 0.5 
+Writing haplotype results to [ SORCS2_CM.assoc.hap.logistic ]
+Converting data to Individual-major format
+
+Analysis finished: Sat Nov 14 10:39:54 2015
 
